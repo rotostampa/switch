@@ -36,6 +36,9 @@ def ftpserver(host, port, perm, urls):
     authorizer = DummyAuthorizer()
 
     for url in urls:
+
+        sys.stdout.write(str(url))
+
         authorizer.add_user(
             url.username or 'admin', 
             url.password or 'admin', 
