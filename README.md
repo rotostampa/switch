@@ -3,13 +3,13 @@
 create a venv
 
 ```
-python3 -m venv Git/switch/venv
+python3 -m venv /Users/storage/Git/switch/venv
 ```
 
 Install requirments 
 
 ```
-Git/switch/venv/bin/python3 -m pip install -r Git/switch/requirements.txt 
+/Users/storage/Git/switch/venv/bin/python3 -m pip install -r /Users/storage/Git/switch/requirements.txt 
 ```
 
 ## startup on macos
@@ -25,18 +25,19 @@ create the following file under ~/Library/LaunchAgents/org.rotostampa.ftpserver.
   <string>ftpserver</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/opt/homebrew/bin/node</string>
-    <string>/opt/homebrew/bin/webdav-runner</string>
-    <string>server</string>
+    <string>/Users/storage/Git/switch/venv/bin/python3</string>
+    <string>/Users/storage/Git/switch/cli.py</string>
+    <string>ftpserver</string>
+    <string>file://user:admin@localhost/Volumes/Path</string>
   </array>
   <key>KeepAlive</key>
   <true/>
   <key>RunAtLoad</key>
   <true/>
   <key>StandardOutPath</key>
-  <string>/Users/rdv/.webdav-runner/webdav-runner.log</string>
+  <string>/Users/storage/Git/switch/ftpserver.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/rdv/.webdav-runner/webdav-runner.log</string>
+  <string>/Users/storage/Git/switch/ftpserver.log</string>
 </dict>
 </plist>
 ```
