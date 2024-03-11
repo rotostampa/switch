@@ -48,7 +48,6 @@ def ftpserver(host, port, perm, urls):
 
     handler = FTPHandler
     handler.authorizer = authorizer
-    handler.permit_foreign_addresses = True
 
     sys.stdout.write(
         (
