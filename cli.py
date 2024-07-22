@@ -136,7 +136,7 @@ def ftpserver(host, port, perm, urls):
 
     for url in urls:
 
-        sys.stdout.write(str(url))
+        click.echo(str(url))
 
         authorizer.add_user(
             url.username or "admin",
@@ -149,7 +149,7 @@ def ftpserver(host, port, perm, urls):
     handler.authorizer = authorizer
     handler.permit_foreign_addresses = True
 
-    sys.stdout.write(
+    click.echo(
         (
             "Starting ftp server at {protocol}://{addr}:{port}/\n"
             "Quit the server with {quit_command}.\n"
