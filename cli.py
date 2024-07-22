@@ -1,15 +1,19 @@
 import click
 import os
 import sys
+import time
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 from urllib.parse import urlparse
+from functools import partial
 from huey import SqliteHuey
 import uuid
 import shutil
 import tempfile
 import subprocess
+from watchdog.observers import Observer
+from watchdog.events import LoggingEventHandler
 
 
 @click.group()
@@ -61,7 +65,7 @@ def run_script_file(temp, path):
                     os.remove(path)
 
 
-def file_to_temp_dir(source_file, copy = True):
+def file_to_temp_dir(source_file, copy=True):
     # Generate a UUID for the directory name
     dir_uuid = str(uuid.uuid4())
 
@@ -74,25 +78,67 @@ def file_to_temp_dir(source_file, copy = True):
 
     # Copy the file to the new directory
 
-    handler = copy and shutil.copy or shutil.move
+    handler = copy and shutil.copy or os.rename
 
     handler(source_file, destination_file)
 
     return temp_dir, destination_file
 
 
+def filter_files(files):
+    for file in map(os.path.realpath, files):
+        if not os.path.exists(file):
+            click.echo("file {file} does not exists".format(file=file), err=True)
+        else:
+            yield file
+
+
+def schedule_and_move(file):
+    click.echo("Scheduling file {file}".format(file=file))
+    run_script_file.schedule(file_to_temp_dir(file, copy=False), delay=0)
+
+
+class WatchHandler(LoggingEventHandler):
+
+    def on_created(self, file):
+        return schedule_and_move(file.src_path)
+
+    def on_moved(self, file):
+        return schedule_and_move(file.src_path)
+
+
 @cli.command(help="Starts the task worker")
 @click.option("--workers", default=4, help="Number of worker to spawn")
-def worker(workers):
+@click.option(
+    "--watch", multiple=True, type=click.Path(), help="Folders to watch for changes"
+)
+def worker(workers, watch, recursive=False):
+
+    if folders := tuple(filter_files(watch)):
+
+        observer = Observer()
+
+        for folder in folders:
+            for file in os.scandir(folder):
+                schedule_and_move(file.path)
+
+        time.sleep(0.01)
+
+        for folder in folders:
+            click.echo("Watching folder {folder} for changes".format(folder=folder))
+            observer.schedule(WatchHandler(), folder, recursive=recursive)
+
+        observer.start()
+
     click.echo(
         (
-            "Starting {workers} workers\n"
-            "Quit the process with {quit_command}.\n"
+            "Starting {workers} workers\n" "Quit the process with {quit_command}.\n"
         ).format(
             workers=workers,
             quit_command="CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C",
         )
     )
+
     huey.create_consumer(workers=workers).run()
 
 
@@ -100,13 +146,9 @@ def worker(workers):
 @click.argument("files", nargs=-1)
 def runscript(files):
 
-    for file in map(os.path.realpath, files):
-        if not os.path.exists(file):
-            click.echo("file {file} does not exists".format(file=file), err=True)
-        else:
-            click.echo("file exists scheduling")
-
-            run_script_file.schedule(file_to_temp_dir(file, copy = True), delay=0)
+    for file in filter_files(files):
+        click.echo("Scheduling file {file}".format(file=file))
+        run_script_file.schedule(file_to_temp_dir(file, copy=True), delay=0)
 
 
 # FTP SERVER LOGIC
