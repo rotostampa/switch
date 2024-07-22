@@ -79,8 +79,18 @@ def copy_file_to_temp_dir(source_file):
 
 
 @cli.command(help="Starts the task worker")
-def worker():
-    huey.create_consumer(workers=4).run()
+@click.option("--workers", default=4, help="Number of worker to spawn")
+def worker(workers):
+    click.echo(
+        (
+            "Starting {workers} workers\n"
+            "Quit the server with {quit_command}.\n"
+        ).format(
+            workers=workers,
+            quit_command="CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C",
+        )
+    )
+    huey.create_consumer(workers=workers).run()
 
 
 @cli.command(help="Schedule a list of script files for execution")
