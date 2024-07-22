@@ -84,7 +84,7 @@ def worker(workers):
     click.echo(
         (
             "Starting {workers} workers\n"
-            "Quit the server with {quit_command}.\n"
+            "Quit the process with {quit_command}.\n"
         ).format(
             workers=workers,
             quit_command="CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C",
@@ -162,7 +162,7 @@ def ftpserver(host, port, perm, urls):
     click.echo(
         (
             "Starting ftp server at {protocol}://{addr}:{port}/\n"
-            "Quit the server with {quit_command}.\n"
+            "Quit the process with {quit_command}.\n"
         ).format(
             protocol="ftp",
             addr=host,
