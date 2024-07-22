@@ -1,2 +1,4 @@
 
 /venv
+huey.db
+.python-version
