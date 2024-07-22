@@ -61,7 +61,7 @@ def run_script_file(temp, path):
                     os.remove(path)
 
 
-def copy_file_to_temp_dir(source_file):
+def file_to_temp_dir(source_file, copy = True):
     # Generate a UUID for the directory name
     dir_uuid = str(uuid.uuid4())
 
@@ -73,7 +73,10 @@ def copy_file_to_temp_dir(source_file):
     destination_file = os.path.join(temp_dir, os.path.basename(source_file))
 
     # Copy the file to the new directory
-    shutil.copy(source_file, destination_file)
+
+    handler = copy and shutil.copy or shutil.move
+
+    handler(source_file, destination_file)
 
     return temp_dir, destination_file
 
@@ -103,7 +106,7 @@ def runscript(files):
         else:
             click.echo("file exists scheduling")
 
-            run_script_file.schedule(copy_file_to_temp_dir(file), delay=0)
+            run_script_file.schedule(file_to_temp_dir(file, copy = True), delay=0)
 
 
 # FTP SERVER LOGIC
