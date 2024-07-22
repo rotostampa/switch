@@ -63,6 +63,8 @@ create also the following ~/Library/LaunchAgents/org.rotostampa.worker.local.pli
     <string>/Users/storage/Git/switch/.venv/bin/python3</string>
     <string>/Users/storage/Git/switch/cli.py</string>
     <string>worker</string>
+    <string>--watch</string>
+    <string>/Volumes/Storage/Switch/COMMAND</string>
   </array>
   <key>KeepAlive</key>
   <true/>
