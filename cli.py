@@ -3,15 +3,12 @@ from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 from urllib.parse import urlparse
-from watchdog.events import LoggingEventHandler
-from watchdog.observers import Observer
 import click
 import os
 import subprocess
 import shutil
 import sys
 import tempfile
-import time
 import uuid
 
 
@@ -62,7 +59,7 @@ def run_script(temp, args):
                     os.remove(path)
 
 
-def file_to_temp_dir(source, task_name, name=None, delete = True):
+def file_to_temp_dir(source, task_name, name=None, delete=True):
 
     # Create a temporary directory with the UUID name
     temp_dir = os.path.join(tempfile.gettempdir(), task_name, str(uuid.uuid4()))
@@ -122,50 +119,10 @@ def move_and_upload(file):
         delay=0,
     )
 
-def process_all_folder(handler, folder):
-    for file in os.scandir(folder):
-        handler(file.path)
-
-class TaskHandler(LoggingEventHandler):
-
-    def __init__(self, file_handler, **opts):
-        self.file_handler = file_handler
-        super().__init__(**opts)
-
-    def on_created(self, file):
-        return process_all_folder(self.file_handler, os.path.dirname(file.src_path))
-
-    def on_moved(self, file):
-        return process_all_folder(self.file_handler, os.path.dirname(file.src_path))
-
 
 @cli.command(help="Starts the task worker")
 @click.option("--workers", default=4, help="Number of worker to spawn")
-@click.option(
-    "--watch", multiple=True, type=click.Path(), help="Folders to watch for changes"
-)
-@click.option(
-    "--upload", multiple=True, type=click.Path(), help="Folders to watch for uploads"
-)
-def worker(workers, watch, upload, recursive=False):
-
-    for folders, handler in (
-        (watch, move_and_run),
-        (upload, move_and_upload),
-    ):
-
-        if folders := tuple(filter_files(folders)):
-
-            observer = Observer()
-
-            for folder in folders:
-                process_all_folder(handler, folder)
-
-            for folder in folders:
-                click.echo("Watching folder {folder} for changes".format(folder=folder))
-                observer.schedule(TaskHandler(handler), folder, recursive=recursive)
-
-            observer.start()
+def worker(workers):
 
     click.echo(
         (
@@ -215,14 +172,30 @@ def validate_url(ctx, param, value):
         yield parsed_url
 
 
+class CustomFTPHandler(FTPHandler):
+
+    folder_actions = {}
+
+    def on_file_received(self, file):
+        for path, action in self.folder_actions.items():
+            if file.startswith(path):
+                action(file)
+
+
 @cli.command(
     help="Start an ftp server. Use a list of urls such as file://user:admin@localhost/path/to/folder to define folders"
 )
 @click.option("--host", default="0.0.0.0", help="Host IP address to bind to")
 @click.option("--port", default=7500, help="Port number to bind to")
 @click.option("--perm", default=None, help="Permission string")
+@click.option(
+    "--watch", multiple=True, type=click.Path(), help="Folders to watch for changes"
+)
+@click.option(
+    "--upload", multiple=True, type=click.Path(), help="Folders to watch for uploads"
+)
 @click.argument("urls", nargs=-1, callback=validate_url)
-def ftpserver(host, port, perm, urls):
+def ftpserver(host, port, perm, urls, watch, upload):
 
     authorizer = DummyAuthorizer()
 
@@ -237,9 +210,25 @@ def ftpserver(host, port, perm, urls):
             perm=perm or "elradfmwMT",
         )
 
-    handler = FTPHandler
+    handler = CustomFTPHandler
     handler.authorizer = authorizer
     handler.permit_foreign_addresses = True
+
+    for folders, action in (
+        (watch, move_and_run),
+        (upload, move_and_upload),
+    ):
+
+        if folders := tuple(filter_files(folders)):
+
+            for folder in folders:
+
+                for file in os.scandir(folder):
+                    action(file.path)
+
+                click.echo("Watching folder {folder} for changes".format(folder=folder))
+
+                handler.folder_actions[folder] = action
 
     click.echo(
         (

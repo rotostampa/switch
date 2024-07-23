@@ -33,6 +33,10 @@ create the following file under ~/Library/LaunchAgents/org.rotostampa.ftpserver.
     <string>file://file:password@localhost/Volumes/NasMaster/DbStorage</string>
     <string>file://lastre:password@localhost/Volumes/Storage/Switch/Lastre</string>
     <string>file://machine:password@localhost/Volumes/Storage/Switch/Machine</string>
+    <string>--watch</string>
+    <string>/Volumes/Storage/Switch/COMMAND</string>
+    <string>--upload</string>
+    <string>/Volumes/Storage/Switch/UPLOAD</string>
   </array>
   <key>KeepAlive</key>
   <true/>
@@ -40,7 +44,6 @@ create the following file under ~/Library/LaunchAgents/org.rotostampa.ftpserver.
   <true/>
     <key>UserName</key>
     <string>storage</string>
-
   <key>StandardOutPath</key>
   <string>/Users/storage/Scripts/switch/ftpserver.log</string>
   <key>StandardErrorPath</key>
@@ -63,10 +66,6 @@ create also the following ~/Library/LaunchAgents/org.rotostampa.worker.local.pli
     <string>/Users/storage/Scripts/switch/.venv/bin/python3</string>
     <string>/Users/storage/Scripts/switch/cli.py</string>
     <string>worker</string>
-    <string>--watch</string>
-    <string>/Volumes/Storage/Switch/COMMAND</string>
-    <string>--upload</string>
-    <string>/Volumes/Storage/Switch/UPLOAD</string>
   </array>
   <key>KeepAlive</key>
   <true/>
