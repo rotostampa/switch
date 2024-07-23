@@ -5,3 +5,6 @@ huey.db-shm
 huey.db-wal
 ftpserver.log
 worker.log
+*.pyc
+dist/.DS_Store
+.DS_Store
