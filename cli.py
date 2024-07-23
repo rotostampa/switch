@@ -92,29 +92,7 @@ def move_and_run(file):
     run_script.schedule((temp, ["/bin/sh", path]), delay=0)
 
 
-def move_and_upload(file):
 
-    click.echo("Uploading file {file} to s3".format(file=file))
-
-    temp, path = file_to_temp_dir(
-        file, "switch_file_upload", "{}-{}".format(uuid.uuid4(), os.path.basename(file))
-    )
-
-    run_script.schedule(
-        (
-            temp,
-            (
-                ".venv/bin/aws",
-                "s3",
-                "cp",
-                path,
-                "s3://workflow-upload/",
-                "--acl",
-                "public-read",
-            ),
-        ),
-        delay=0,
-    )
 
 
 @cli.command(help="Starts the task worker")
@@ -179,11 +157,8 @@ class ActionFTPHandler(FTPHandler):
 @click.option(
     "--watch", multiple=True, type=click.Path(), help="Folders to watch for changes"
 )
-@click.option(
-    "--upload", multiple=True, type=click.Path(), help="Folders to watch for uploads"
-)
 @click.argument("urls", nargs=-1, callback=validate_url)
-def ftpserver(host, port, perm, urls, watch, upload):
+def ftpserver(host, port, perm, urls, watch):
 
     authorizer = DummyAuthorizer()
 
@@ -204,7 +179,6 @@ def ftpserver(host, port, perm, urls, watch, upload):
 
     for folders, action in (
         (watch, move_and_run),
-        (upload, move_and_upload),
     ):
 
         if folders := tuple(filter_files(folders)):

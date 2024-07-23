@@ -10,7 +10,6 @@ dependencies = [
     "huey==2.5.1",
     "pyftpdlib==1.5.10",
     "watchdog>=4.0.1",
-    "awscli==1.33.28",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
