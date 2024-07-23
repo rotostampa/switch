@@ -14,8 +14,8 @@ readme = "README.md"
 requires-python = ">= 3.12"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.rye]
 managed = true
@@ -23,8 +23,6 @@ dev-dependencies = [
     "black>=24.4.2",
 ]
 
-[tool.hatch.metadata]
-allow-direct-references = true
-
-[tool.hatch.build.targets.wheel]
-packages = ["cli.py"]
+[tool.rye.scripts]
+ftpserver = "python3 cli.py ftpserver"
+upload    = "python3 cli.py upload"
