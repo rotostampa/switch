@@ -26,8 +26,11 @@ create the following file under ~/Library/LaunchAgents/org.rotostampa.ftpserver.
   <string>ftpserver</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/Users/storage/Scripts/switch/.venv/bin/python3</string>
-    <string>/Users/storage/Scripts/switch/cli.py</string>
+    <string>/opt/homebrew/bin/rye</string>
+    <string>run</string>
+    <string>--pyproject</string>
+    <string>/Users/storage/Scripts/switch/pyproject.toml</string>
+    <string>switch</string>
     <string>ftpserver</string>
     <string>file://storage:password@localhost/Volumes/Storage/Switch</string>
     <string>file://file:password@localhost/Volumes/NasMaster/DbStorage</string>
