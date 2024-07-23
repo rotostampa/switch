@@ -1,19 +1,18 @@
-import click
-import os
-import sys
-import time
+from huey import SqliteHuey
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 from urllib.parse import urlparse
-from functools import partial
-from huey import SqliteHuey
-import uuid
-import shutil
-import tempfile
-import subprocess
-from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler
+from watchdog.observers import Observer
+import click
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+import uuid
 
 
 @click.group()
