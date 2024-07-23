@@ -9,7 +9,7 @@ brew install rye
 Install requirments and create venv 
 
 ```
-cd /Users/storage/Git/switch/
+cd /Users/storage/Scripts/switch/
 rye sync
 ```
 
@@ -26,8 +26,8 @@ create the following file under ~/Library/LaunchAgents/org.rotostampa.ftpserver.
   <string>ftpserver</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/Users/storage/Git/switch/.venv/bin/python3</string>
-    <string>/Users/storage/Git/switch/cli.py</string>
+    <string>/Users/storage/Scripts/switch/.venv/bin/python3</string>
+    <string>/Users/storage/Scripts/switch/cli.py</string>
     <string>ftpserver</string>
     <string>file://storage:password@localhost/Volumes/Storage/Switch</string>
     <string>file://file:password@localhost/Volumes/NasMaster/DbStorage</string>
@@ -42,9 +42,9 @@ create the following file under ~/Library/LaunchAgents/org.rotostampa.ftpserver.
     <string>storage</string>
 
   <key>StandardOutPath</key>
-  <string>/Users/storage/Git/switch/ftpserver.log</string>
+  <string>/Users/storage/Scripts/switch/ftpserver.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/storage/Git/switch/ftpserver.log</string>
+  <string>/Users/storage/Scripts/switch/ftpserver.log</string>
 </dict>
 </plist>
 ```
@@ -60,8 +60,8 @@ create also the following ~/Library/LaunchAgents/org.rotostampa.worker.local.pli
   <string>worker</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/Users/storage/Git/switch/.venv/bin/python3</string>
-    <string>/Users/storage/Git/switch/cli.py</string>
+    <string>/Users/storage/Scripts/switch/.venv/bin/python3</string>
+    <string>/Users/storage/Scripts/switch/cli.py</string>
     <string>worker</string>
     <string>--watch</string>
     <string>/Volumes/Storage/Switch/COMMAND</string>
@@ -75,9 +75,9 @@ create also the following ~/Library/LaunchAgents/org.rotostampa.worker.local.pli
     <key>UserName</key>
     <string>storage</string>
   <key>StandardOutPath</key>
-  <string>/Users/storage/Git/switch/worker.log</string>
+  <string>/Users/storage/Scripts/switch/worker.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/storage/Git/switch/worker.log</string>
+  <string>/Users/storage/Scripts/switch/worker.log</string>
 </dict>
 </plist>
 ```
