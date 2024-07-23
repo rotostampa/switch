@@ -14,7 +14,6 @@ import time
 
 
 def uuid7():
-
     # https://antonz.org/uuidv7/#python
 
     # random bytes
@@ -42,7 +41,6 @@ def uuid7():
 
 
 def file_to_temp_dir(source, task_name, name=None):
-
     task_id = uuid7()
 
     # Create a temporary directory with the UUID name
@@ -67,8 +65,9 @@ def filter_files(files):
             yield file
 
 
-def move_and_run(file, builder=lambda path: ("/bin/sh", path), name=None, task_name = "switch_task_run"):
-
+def move_and_run(
+    file, builder=lambda path: ("/bin/sh", path), name=None, task_name="switch_task_run"
+):
     temp, task_id, path = file_to_temp_dir(file, task_name, name=name)
 
     click.echo("Running {path}".format(path=path))
@@ -119,7 +118,6 @@ def validate_url(ctx, param, value):
 
 
 class ActionFTPHandler(FTPHandler):
-
     folder_actions = {}
 
     def on_file_received(self, file):
@@ -144,11 +142,9 @@ def cli():
 )
 @click.argument("urls", nargs=-1, callback=validate_url)
 def ftpserver(host, port, perm, urls, watch):
-
     authorizer = DummyAuthorizer()
 
     for url in urls:
-
         click.echo(str(url))
 
         authorizer.add_user(
@@ -163,11 +159,8 @@ def ftpserver(host, port, perm, urls, watch):
     handler.permit_foreign_addresses = True
 
     for folders, action in ((watch, move_and_run),):
-
         if folders := tuple(filter_files(folders)):
-
             for folder in folders:
-
                 for file in os.scandir(folder):
                     action(file)
 
@@ -196,8 +189,9 @@ def ftpserver(host, port, perm, urls, watch):
 )
 @click.argument("files", nargs=-1, type=click.Path())
 @click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
-
-@click.option("--s3", default="s3://workflow-upload/", help="Add a unique prefix to the files")
+@click.option(
+    "--s3", default="s3://workflow-upload/", help="Add a unique prefix to the files"
+)
 def upload(files, unique, s3):
     for file in files:
         move_and_run(
@@ -216,7 +210,7 @@ def upload(files, unique, s3):
                 uuid=uuid7(), basename=os.path.basename(file)
             )
             or None,
-            task_name='switch_file_upload'
+            task_name="switch_file_upload",
         )
 
 
