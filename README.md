@@ -65,6 +65,8 @@ create also the following ~/Library/LaunchAgents/org.rotostampa.worker.local.pli
     <string>worker</string>
     <string>--watch</string>
     <string>/Volumes/Storage/Switch/COMMAND</string>
+    <string>--upload</string>
+    <string>/Volumes/Storage/Switch/UPLOAD</string>
   </array>
   <key>KeepAlive</key>
   <true/>
