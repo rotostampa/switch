@@ -72,7 +72,7 @@ def file_to_temp_dir(source, task_name, name=None):
 
     # Move the file to the new directory
 
-    os.rename(source, dest)
+    shutil.move(source, dest)
 
     return temp_dir, dest
 
