@@ -62,7 +62,7 @@ def run_script(temp, args):
                     os.remove(path)
 
 
-def file_to_temp_dir(source, task_name, name=None):
+def file_to_temp_dir(source, task_name, name=None, delete = True):
 
     # Create a temporary directory with the UUID name
     temp_dir = os.path.join(tempfile.gettempdir(), task_name, str(uuid.uuid4()))
@@ -73,7 +73,10 @@ def file_to_temp_dir(source, task_name, name=None):
 
     # Move the file to the new directory
 
-    shutil.move(source, dest)
+    shutil.copy(source, dest)
+
+    if delete:
+        os.remove(source)
 
     return temp_dir, dest
 
