@@ -8,3 +8,5 @@ worker.log
 *.pyc
 dist/.DS_Store
 .DS_Store
+/switch.egg-info
+/dist
