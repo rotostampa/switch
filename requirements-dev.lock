@@ -14,8 +14,6 @@ black==24.4.2
 click==8.1.7
     # via black
     # via switch
-huey==2.5.1
-    # via switch
 mypy-extensions==1.0.0
     # via black
 packaging==24.1

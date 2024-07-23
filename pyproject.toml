@@ -7,7 +7,6 @@ authors = [
 ]
 dependencies = [
     "click==8.1.7",
-    "huey==2.5.1",
     "pyftpdlib==1.5.10",
     "watchdog>=4.0.1",
 ]

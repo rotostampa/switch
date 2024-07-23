@@ -1,4 +1,3 @@
-from huey import SqliteHuey
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
@@ -10,6 +9,32 @@ import shutil
 import sys
 import tempfile
 import uuid
+import time
+
+
+def uuid7():
+
+    # https://antonz.org/uuidv7/#python
+
+    # random bytes
+    value = bytearray(os.urandom(16))
+
+    # current timestamp in ms
+    timestamp = int(time.time() * 1000)
+
+    # timestamp
+    value[0] = (timestamp >> 40) & 0xFF
+    value[1] = (timestamp >> 32) & 0xFF
+    value[2] = (timestamp >> 24) & 0xFF
+    value[3] = (timestamp >> 16) & 0xFF
+    value[4] = (timestamp >> 8) & 0xFF
+    value[5] = timestamp & 0xFF
+
+    # version and variant
+    value[6] = (value[6] & 0x0F) | 0x70
+    value[8] = (value[8] & 0x3F) | 0x80
+
+    return uuid.UUID(bytes=bytes(value))
 
 
 @click.group()
@@ -20,49 +45,12 @@ def cli():
 # WORKER LOGIC
 
 
-huey = SqliteHuey(filename=os.path.join(os.path.dirname(__file__), "huey.db"))
-
-
-@huey.task()
-def run_script(temp, args):
-    # Open the log file in write mode
-
-    stderr = os.path.join(temp, "stderr.txt")
-    stdout = os.path.join(temp, "stdout.txt")
-
-    with open(stderr, "w") as stdout_file:
-        with open(stdout, "w") as stdout_file:
-            # Run the script using /bin/sh
-
-            click.echo(
-                "{temp} started".format(temp=temp),
-                err=True,
-            )
-            result = subprocess.run(args, stdout=stdout_file, stderr=stdout_file)
-            click.echo(
-                "{temp} finished with returncode {returncode}".format(
-                    temp=temp, returncode=result.returncode
-                ),
-                err=True,
-            )
-
-    for path, err in (
-        (stderr, True),
-        (stdout, False),
-    ):
-
-        if os.path.exists(path):
-            with open(path, "r") as log:
-                if text := log.read().strip():
-                    click.echo(text, err=err)
-                else:
-                    os.remove(path)
-
-
 def file_to_temp_dir(source, task_name, name=None):
 
+    task_id = uuid7()
+
     # Create a temporary directory with the UUID name
-    temp_dir = os.path.join(tempfile.gettempdir(), task_name, str(uuid.uuid4()))
+    temp_dir = os.path.join(tempfile.gettempdir(), task_name, str(task_id))
     os.makedirs(temp_dir)
 
     # Define the destination file path
@@ -72,7 +60,7 @@ def file_to_temp_dir(source, task_name, name=None):
 
     shutil.move(source, dest)
 
-    return temp_dir, dest
+    return temp_dir, task_id, dest
 
 
 def filter_files(files):
@@ -85,27 +73,27 @@ def filter_files(files):
 
 def move_and_run(file):
 
-    click.echo("Running script file {file}".format(file=file))
+    temp, task_id, path = file_to_temp_dir(file, "switch_task_run")
 
-    temp, path = file_to_temp_dir(file, "switch_task_run")
+    click.echo("Running script file {file} to {temp}".format(file=file, temp=temp))
 
-    run_script.schedule((temp, ["/bin/sh", path]), delay=0)
-
-
-@cli.command(help="Starts the task worker")
-@click.option("--workers", default=8, help="Number of worker to spawn")
-def worker(workers):
-
-    click.echo(
-        (
-            "Starting {workers} workers\n" "Quit the process with {quit_command}.\n"
-        ).format(
-            workers=workers,
-            quit_command="CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C",
-        )
+    subprocess.run(
+        [
+            "/opt/homebrew/bin/screen",
+            "-L",
+            "-Logfile",
+            os.path.join(temp, "screen.log"),
+            "-S",
+            "cmd-{task_id}".format(task_id=task_id),
+            "-dm",
+            "/bin/sh",
+            path,
+        ],
+        stdout=sys.stdout,
+        stdin=subprocess.PIPE,
+        stderr=sys.stderr,
+        env=os.environ,
     )
-
-    huey.create_consumer(workers=workers).run()
 
 
 # FTP SERVER LOGIC
