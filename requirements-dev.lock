@@ -10,12 +10,23 @@
 #   universal: false
 
 -e file:.
+awscli==1.33.28
+    # via switch
 black==24.4.2
+botocore==1.34.146
+    # via awscli
+    # via s3transfer
 click==8.1.7
     # via black
     # via switch
+colorama==0.4.6
+    # via awscli
+docutils==0.16
+    # via awscli
 huey==2.5.1
     # via switch
+jmespath==1.0.1
+    # via botocore
 mypy-extensions==1.0.0
     # via black
 packaging==24.1
@@ -24,7 +35,21 @@ pathspec==0.12.1
     # via black
 platformdirs==4.2.2
     # via black
+pyasn1==0.6.0
+    # via rsa
 pyftpdlib==1.5.10
     # via switch
+python-dateutil==2.9.0.post0
+    # via botocore
+pyyaml==6.0.1
+    # via awscli
+rsa==4.7.2
+    # via awscli
+s3transfer==0.10.2
+    # via awscli
+six==1.16.0
+    # via python-dateutil
+urllib3==2.2.2
+    # via botocore
 watchdog==4.0.1
     # via switch
