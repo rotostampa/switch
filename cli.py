@@ -37,11 +37,6 @@ def uuid7():
     return uuid.UUID(bytes=bytes(value))
 
 
-@click.group()
-def cli():
-    pass
-
-
 # WORKER LOGIC
 
 
@@ -89,8 +84,8 @@ def move_and_run(file):
             "/bin/sh",
             path,
         ],
-        stdout=sys.stdout,
         stdin=subprocess.PIPE,
+        stdout=sys.stdout,
         stderr=sys.stderr,
         env=os.environ,
     )
@@ -131,6 +126,11 @@ class ActionFTPHandler(FTPHandler):
         for path, action in self.folder_actions.items():
             if file.startswith(path):
                 action(file)
+
+
+@click.group()
+def cli():
+    pass
 
 
 @cli.command(
