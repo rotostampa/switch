@@ -72,7 +72,7 @@ def move_and_run(file):
 
     click.echo("Running {path}".format(path=path))
 
-    subprocess.run(
+    subprocess.Popen(
         [
             "/opt/homebrew/bin/screen",
             "-L",
