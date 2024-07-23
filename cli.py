@@ -67,9 +67,9 @@ def filter_files(files):
             yield file
 
 
-def move_and_run(file, builder=lambda path: ("/bin/sh", path), name=None):
+def move_and_run(file, builder=lambda path: ("/bin/sh", path), name=None, task_name = "switch_task_run"):
 
-    temp, task_id, path = file_to_temp_dir(file, "switch_task_run", name=name)
+    temp, task_id, path = file_to_temp_dir(file, task_name, name=name)
 
     click.echo("Running {path}".format(path=path))
 
@@ -196,7 +196,9 @@ def ftpserver(host, port, perm, urls, watch):
 )
 @click.argument("files", nargs=-1, type=click.Path())
 @click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
-def upload(files, prefix):
+
+@click.option("--s3", default="s3://workflow-upload/", help="Add a unique prefix to the files")
+def upload(files, unique, s3):
     for file in files:
         move_and_run(
             file,
@@ -205,7 +207,7 @@ def upload(files, prefix):
                 "s3",
                 "cp",
                 path,
-                "s3://workflow-upload/",
+                s3,
                 "--acl",
                 "public-read",
             ),
@@ -214,6 +216,7 @@ def upload(files, prefix):
                 uuid=uuid7(), basename=os.path.basename(file)
             )
             or None,
+            task_name='switch_file_upload'
         )
 
 
