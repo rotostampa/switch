@@ -92,9 +92,6 @@ def move_and_run(file):
     run_script.schedule((temp, ["/bin/sh", path]), delay=0)
 
 
-
-
-
 @cli.command(help="Starts the task worker")
 @click.option("--workers", default=4, help="Number of worker to spawn")
 def worker(workers):
@@ -177,9 +174,7 @@ def ftpserver(host, port, perm, urls, watch):
     handler.authorizer = authorizer
     handler.permit_foreign_addresses = True
 
-    for folders, action in (
-        (watch, move_and_run),
-    ):
+    for folders, action in ((watch, move_and_run),):
 
         if folders := tuple(filter_files(folders)):
 
