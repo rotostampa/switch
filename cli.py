@@ -7,7 +7,6 @@ from watchdog.events import LoggingEventHandler
 from watchdog.observers import Observer
 import click
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -27,7 +26,7 @@ huey = SqliteHuey(filename=os.path.join(os.path.dirname(__file__), "huey.db"))
 
 
 @huey.task()
-def run_script_file(temp, path):
+def run_script(temp, args):
     # Open the log file in write mode
 
     stderr = os.path.join(temp, "stderr.txt")
@@ -38,12 +37,10 @@ def run_script_file(temp, path):
             # Run the script using /bin/sh
 
             click.echo(
-                "{temp} started {name}".format(name=os.path.basename(path), temp=temp),
+                "{temp} started".format(temp=temp),
                 err=True,
             )
-            result = subprocess.run(
-                ("/bin/sh", path), stdout=stdout_file, stderr=stdout_file
-            )
+            result = subprocess.run(args, stdout=stdout_file, stderr=stdout_file)
             click.echo(
                 "{temp} finished with returncode {returncode}".format(
                     temp=temp, returncode=result.returncode
@@ -64,24 +61,20 @@ def run_script_file(temp, path):
                     os.remove(path)
 
 
-def file_to_temp_dir(source_file, copy=True):
-    # Generate a UUID for the directory name
-    dir_uuid = str(uuid.uuid4())
+def file_to_temp_dir(source, task_name, name=None):
 
     # Create a temporary directory with the UUID name
-    temp_dir = os.path.join(tempfile.gettempdir(), "switch_task_runner", dir_uuid)
+    temp_dir = os.path.join(tempfile.gettempdir(), task_name, str(uuid.uuid4()))
     os.makedirs(temp_dir)
 
     # Define the destination file path
-    destination_file = os.path.join(temp_dir, os.path.basename(source_file))
+    dest = os.path.join(temp_dir, name or os.path.basename(source))
 
-    # Copy the file to the new directory
+    # Move the file to the new directory
 
-    handler = copy and shutil.copy or os.rename
+    os.rename(source, dest)
 
-    handler(source_file, destination_file)
-
-    return temp_dir, destination_file
+    return temp_dir, dest
 
 
 def filter_files(files):
@@ -92,18 +85,51 @@ def filter_files(files):
             yield file
 
 
-def schedule_and_move(file):
-    click.echo("Scheduling file {file}".format(file=file))
-    run_script_file.schedule(file_to_temp_dir(file, copy=False), delay=0)
+def move_and_run(file):
+
+    click.echo("Running script file {file}".format(file=file))
+
+    temp, path = file_to_temp_dir(file, "switch_task_run")
+
+    run_script.schedule((temp, ["/bin/sh", path]), delay=0)
 
 
-class WatchHandler(LoggingEventHandler):
+def move_and_upload(file):
+
+    click.echo("Uploading file {file} to s3".format(file=file))
+
+    temp, path = file_to_temp_dir(
+        file, "switch_file_upload", "{}-{}".format(uuid.uuid4(), os.path.basename(file))
+    )
+
+    run_script.schedule(
+        (
+            temp,
+            (
+                ".venv/bin/aws",
+                "s3",
+                "cp",
+                path,
+                "s3://workflow-upload/",
+                "--acl",
+                "public-read",
+            ),
+        ),
+        delay=0,
+    )
+
+
+class TaskHandler(LoggingEventHandler):
+
+    def __init__(self, file_handler, **opts):
+        self.file_handler = file_handler
+        super().__init__(**opts)
 
     def on_created(self, file):
-        return schedule_and_move(file.src_path)
+        return self.file_handler(file.src_path)
 
     def on_moved(self, file):
-        return schedule_and_move(file.src_path)
+        return self.file_handler(file.src_path)
 
 
 @cli.command(help="Starts the task worker")
@@ -111,23 +137,31 @@ class WatchHandler(LoggingEventHandler):
 @click.option(
     "--watch", multiple=True, type=click.Path(), help="Folders to watch for changes"
 )
-def worker(workers, watch, recursive=False):
+@click.option(
+    "--upload", multiple=True, type=click.Path(), help="Folders to watch for uploads"
+)
+def worker(workers, watch, upload, recursive=False):
 
-    if folders := tuple(filter_files(watch)):
+    for folders, handler in (
+        (watch, move_and_run),
+        (upload, move_and_upload),
+    ):
 
-        observer = Observer()
+        if folders := tuple(filter_files(folders)):
 
-        for folder in folders:
-            for file in os.scandir(folder):
-                schedule_and_move(file.path)
+            observer = Observer()
 
-        time.sleep(0.01)
+            for folder in folders:
+                for file in os.scandir(folder):
+                    handler(file.path)
 
-        for folder in folders:
-            click.echo("Watching folder {folder} for changes".format(folder=folder))
-            observer.schedule(WatchHandler(), folder, recursive=recursive)
+            time.sleep(0.01)
 
-        observer.start()
+            for folder in folders:
+                click.echo("Watching folder {folder} for changes".format(folder=folder))
+                observer.schedule(TaskHandler(handler), folder, recursive=recursive)
+
+            observer.start()
 
     click.echo(
         (
@@ -146,8 +180,8 @@ def worker(workers, watch, recursive=False):
 def runscript(files):
 
     for file in filter_files(files):
-        click.echo("Scheduling file {file}".format(file=file))
-        run_script_file.schedule(file_to_temp_dir(file, copy=True), delay=0)
+
+        move_and_run(file)
 
 
 # FTP SERVER LOGIC
