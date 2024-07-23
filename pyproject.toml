@@ -1,0 +1,32 @@
+[project]
+name = "switch"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "riccardodivirgilio", email = "riccardodivirgilio@gmail.com" }
+]
+dependencies = [
+    "click==8.1.7",
+    "huey==2.5.1",
+    "pyftpdlib==1.5.10",
+    "watchdog>=4.0.1",
+    "awscli==1.33.28",
+]
+readme = "README.md"
+requires-python = ">= 3.12"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "black>=24.4.2",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["cli.py"]

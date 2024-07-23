@@ -1,2 +1,7 @@
-
-/venv
+.python-version
+.venv
+huey.db
+huey.db-shm
+huey.db-wal
+ftpserver.log
+worker.log
