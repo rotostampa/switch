@@ -75,7 +75,7 @@ def move_and_run(file):
 
     temp, task_id, path = file_to_temp_dir(file, "switch_task_run")
 
-    click.echo("Running script file {file} to {temp}".format(file=file, temp=temp))
+    click.echo("Running {path}".format(path=path))
 
     subprocess.run(
         [
