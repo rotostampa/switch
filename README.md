@@ -35,8 +35,6 @@ create the following file under ~/Library/LaunchAgents/org.rotostampa.ftpserver.
     <string>file://machine:password@localhost/Volumes/Storage/Switch/Machine</string>
     <string>--watch</string>
     <string>/Volumes/Storage/Switch/COMMAND</string>
-    <string>--upload</string>
-    <string>/Volumes/Storage/Switch/UPLOAD</string>
   </array>
   <key>KeepAlive</key>
   <true/>
@@ -52,34 +50,6 @@ create the following file under ~/Library/LaunchAgents/org.rotostampa.ftpserver.
 </plist>
 ```
 
-create also the following ~/Library/LaunchAgents/org.rotostampa.worker.local.plist for the task runner
-
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key>
-  <string>worker</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>/Users/storage/Scripts/switch/.venv/bin/python3</string>
-    <string>/Users/storage/Scripts/switch/cli.py</string>
-    <string>worker</string>
-  </array>
-  <key>KeepAlive</key>
-  <true/>
-  <key>RunAtLoad</key>
-  <true/>
-    <key>UserName</key>
-    <string>storage</string>
-  <key>StandardOutPath</key>
-  <string>/Users/storage/Scripts/switch/worker.log</string>
-  <key>StandardErrorPath</key>
-  <string>/Users/storage/Scripts/switch/worker.log</string>
-</dict>
-</plist>
-```
 
 ### work with this repo
 
