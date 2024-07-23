@@ -122,6 +122,9 @@ def move_and_upload(file):
         delay=0,
     )
 
+def process_all_folder(handler, folder):
+    for file in os.scandir(folder):
+        handler(file.path)
 
 class TaskHandler(LoggingEventHandler):
 
@@ -130,10 +133,10 @@ class TaskHandler(LoggingEventHandler):
         super().__init__(**opts)
 
     def on_created(self, file):
-        return self.file_handler(file.src_path)
+        return process_all_folder(self.file_handler, os.path.dirname(file.src_path))
 
     def on_moved(self, file):
-        return self.file_handler(file.src_path)
+        return process_all_folder(self.file_handler, os.path.dirname(file.src_path))
 
 
 @cli.command(help="Starts the task worker")
@@ -156,10 +159,7 @@ def worker(workers, watch, upload, recursive=False):
             observer = Observer()
 
             for folder in folders:
-                for file in os.scandir(folder):
-                    handler(file.path)
-
-            time.sleep(0.01)
+                process_all_folder(handler, folder)
 
             for folder in folders:
                 click.echo("Watching folder {folder} for changes".format(folder=folder))
