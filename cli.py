@@ -93,7 +93,7 @@ def move_and_run(file):
 
 
 @cli.command(help="Starts the task worker")
-@click.option("--workers", default=4, help="Number of worker to spawn")
+@click.option("--workers", default=8, help="Number of worker to spawn")
 def worker(workers):
 
     click.echo(
