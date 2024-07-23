@@ -136,15 +136,6 @@ def worker(workers):
     huey.create_consumer(workers=workers).run()
 
 
-@cli.command(help="Schedule a list of script files for execution")
-@click.argument("files", nargs=-1)
-def runscript(files):
-
-    for file in filter_files(files):
-
-        move_and_run(file)
-
-
 # FTP SERVER LOGIC
 
 
