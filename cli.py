@@ -8,6 +8,7 @@ import subprocess
 import shutil
 import sys
 import tempfile
+import pathlib
 import uuid
 import time
 
@@ -66,9 +67,9 @@ def filter_files(files):
             yield file
 
 
-def move_and_run(file):
+def move_and_run(file, builder=lambda path: ("/bin/sh", path), name=None):
 
-    temp, task_id, path = file_to_temp_dir(file, "switch_task_run")
+    temp, task_id, path = file_to_temp_dir(file, "switch_task_run", name=name)
 
     click.echo("Running {path}".format(path=path))
 
@@ -81,8 +82,7 @@ def move_and_run(file):
             "-S",
             "cmd-{task_id}".format(task_id=task_id),
             "-dm",
-            "/bin/sh",
-            path,
+            *builder(path),
         ],
         stdin=subprocess.PIPE,
         stdout=sys.stdout,
@@ -125,7 +125,7 @@ class ActionFTPHandler(FTPHandler):
     def on_file_received(self, file):
         for path, action in self.folder_actions.items():
             if file.startswith(path):
-                action(file)
+                action(pathlib.Path(file))
 
 
 @click.group()
@@ -169,7 +169,7 @@ def ftpserver(host, port, perm, urls, watch):
             for folder in folders:
 
                 for file in os.scandir(folder):
-                    action(file.path)
+                    action(file)
 
                 click.echo("Watching folder {folder} for changes".format(folder=folder))
 
@@ -189,6 +189,32 @@ def ftpserver(host, port, perm, urls, watch):
 
     server = FTPServer((host, port), handler)
     server.serve_forever()
+
+
+@cli.command(
+    help="Upload files to s3 and signal sprint24 they are ready for collection"
+)
+@click.argument("files", nargs=-1, type=click.Path())
+@click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
+def upload(files, prefix):
+    for file in files:
+        move_and_run(
+            file,
+            lambda path: (
+                "aws",
+                "s3",
+                "cp",
+                path,
+                "s3://workflow-upload/",
+                "--acl",
+                "public-read",
+            ),
+            name=unique
+            and "{uuid}-{basename}".format(
+                uuid=uuid7(), basename=os.path.basename(file)
+            )
+            or None,
+        )
 
 
 if __name__ == "__main__":
