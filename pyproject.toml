@@ -24,5 +24,4 @@ dev-dependencies = [
 ]
 
 [tool.rye.scripts]
-ftpserver = "python3 cli.py ftpserver"
-upload    = "python3 cli.py upload"
+switch = "python3 -m switch"
