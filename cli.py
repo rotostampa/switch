@@ -59,7 +59,7 @@ def run_script(temp, args):
                     os.remove(path)
 
 
-def file_to_temp_dir(source, task_name, name=None, delete=True):
+def file_to_temp_dir(source, task_name, name=None):
 
     # Create a temporary directory with the UUID name
     temp_dir = os.path.join(tempfile.gettempdir(), task_name, str(uuid.uuid4()))
@@ -70,10 +70,7 @@ def file_to_temp_dir(source, task_name, name=None, delete=True):
 
     # Move the file to the new directory
 
-    shutil.copy(source, dest)
-
-    if delete:
-        os.remove(source)
+    shutil.move(source, dest)
 
     return temp_dir, dest
 
@@ -163,7 +160,7 @@ def validate_url(ctx, param, value):
         yield parsed_url
 
 
-class CustomFTPHandler(FTPHandler):
+class ActionFTPHandler(FTPHandler):
 
     folder_actions = {}
 
@@ -201,7 +198,7 @@ def ftpserver(host, port, perm, urls, watch, upload):
             perm=perm or "elradfmwMT",
         )
 
-    handler = CustomFTPHandler
+    handler = ActionFTPHandler
     handler.authorizer = authorizer
     handler.permit_foreign_addresses = True
 
