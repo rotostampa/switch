@@ -43,7 +43,7 @@ def uuid7():
 # WORKER LOGIC
 
 
-def file_to_temp_dir(source, task_name, name=None):
+def file_to_temp_dir(source, task_name, name=None, copy = False):
     task_id = uuid7()
 
     # Create a temporary directory with the UUID name
@@ -55,7 +55,10 @@ def file_to_temp_dir(source, task_name, name=None):
 
     # Move the file to the new directory
 
-    shutil.move(source, dest)
+    if copy:
+        shutil.copy(source, dest)
+    else:
+        shutil.move(source, dest)
 
     return temp_dir, task_id, dest
 
@@ -76,10 +79,10 @@ def expand_files(*paths):
             yield path
 
 
-def move_and_run(
-    file, builder=lambda path: ("/bin/sh", path), name=None, task_name="switch_task_run"
+def grab_and_run(
+    file, builder=lambda path: ("/bin/sh", path), name=None, task_name="switch_task_run", copy = False
 ):
-    temp, task_id, path = file_to_temp_dir(file, task_name, name=name)
+    temp, task_id, path = file_to_temp_dir(file, task_name, name=name, copy = copy)
 
     click.echo("Running {path}".format(path=path))
 
@@ -169,7 +172,7 @@ def ftpserver(host, port, perm, urls, watch):
     handler.authorizer = authorizer
     handler.permit_foreign_addresses = True
 
-    for folders, action in ((watch, move_and_run),):
+    for folders, action in ((watch, grab_and_run),):
         if folders := tuple(filter_files(folders)):
             for folder in folders:
                 for file in os.scandir(folder):
@@ -200,15 +203,17 @@ def ftpserver(host, port, perm, urls, watch):
 )
 @click.argument("files", nargs=-1, type=click.Path())
 @click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
+@click.option("--notify", is_flag=True, help="Send a notification")
+@click.option("--copy", is_flag=True, help="Copy the file instead of moving it")
 @click.option(
     "--s3", default="s3://workflow-upload/", help="Add a unique prefix to the files"
 )
-def upload(files, unique, s3):
+def upload(files, unique, s3, notify, copy):
 
-    notify = False
+    should_notify = False
 
     for file in expand_files(*files):
-        move_and_run(
+        grab_and_run(
             file,
             lambda path: (
                 "aws",
@@ -225,10 +230,11 @@ def upload(files, unique, s3):
             )
             or None,
             task_name="switch_file_upload",
+            copy=copy
         )
-        notify = True
+        should_notify = True
 
-    if notify:
+    if should_notify and notify:
 
         # Send the POST request
 
