@@ -68,6 +68,14 @@ def filter_files(files):
             yield file
 
 
+def expand_files(*paths):
+    for path in filter_files(paths):
+        if os.path.isdir(path):
+            yield from os.scandir(path)
+        else:
+            yield path
+
+
 def move_and_run(
     file, builder=lambda path: ("/bin/sh", path), name=None, task_name="switch_task_run"
 ):
@@ -196,7 +204,7 @@ def ftpserver(host, port, perm, urls, watch):
     "--s3", default="s3://workflow-upload/", help="Add a unique prefix to the files"
 )
 def upload(files, unique, s3):
-    for file in files:
+    for file in expand_files(*files):
         move_and_run(
             file,
             lambda path: (
