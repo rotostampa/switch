@@ -11,6 +11,9 @@ import tempfile
 import pathlib
 import uuid
 import time
+import http.client
+import urllib.parse
+import ssl
 
 
 def uuid7():
@@ -212,6 +215,23 @@ def upload(files, unique, s3):
             or None,
             task_name="switch_file_upload",
         )
+
+    if files:
+
+        # Send the POST request
+
+        conn = http.client.HTTPSConnection("sprint24.com")
+
+        conn.request(
+            "POST",
+            "/api/storage/switch-notify-file/",
+            body=urllib.parse.urlencode(
+                {"token": "5f5d24c0-a0c0-4f6c-b2b4-2414fac5eaa5"}
+            ).encode("utf-8"),
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
+        assert conn.getresponse().status == 200
 
 
 if __name__ == "__main__":
