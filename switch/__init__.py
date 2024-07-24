@@ -216,7 +216,7 @@ def upload(files, unique, s3, notify, copy):
         grab_and_run(
             file,
             lambda path: (
-                "aws",
+                "/opt/homebrew/bin/aws",
                 "s3",
                 "cp",
                 path,
