@@ -204,6 +204,9 @@ def ftpserver(host, port, perm, urls, watch):
     "--s3", default="s3://workflow-upload/", help="Add a unique prefix to the files"
 )
 def upload(files, unique, s3):
+
+    notify = False
+
     for file in expand_files(*files):
         move_and_run(
             file,
@@ -223,8 +226,9 @@ def upload(files, unique, s3):
             or None,
             task_name="switch_file_upload",
         )
+        notify = True
 
-    if files:
+    if notify:
 
         # Send the POST request
 
