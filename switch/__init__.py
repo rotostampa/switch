@@ -238,6 +238,8 @@ def upload(files, unique, s3, notify, copy):
 
         # Send the POST request
 
+        click.echo('Sending notification', err = True)
+
         conn = http.client.HTTPSConnection("sprint24.com")
 
         conn.request(
@@ -249,7 +251,11 @@ def upload(files, unique, s3, notify, copy):
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
 
-        assert conn.getresponse().status == 200
+        resp = conn.getresponse()
+
+        click.echo(resp.read(), err = True)
+
+        assert resp.status == 200
 
 
 if __name__ == "__main__":
