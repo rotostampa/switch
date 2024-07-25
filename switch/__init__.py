@@ -43,7 +43,7 @@ def uuid7():
 # WORKER LOGIC
 
 
-def file_to_temp_dir(source, task_name, name=None, copy = False):
+def file_to_temp_dir(source, task_name, name=None, copy=False):
     task_id = uuid7()
 
     # Create a temporary directory with the UUID name
@@ -60,7 +60,11 @@ def file_to_temp_dir(source, task_name, name=None, copy = False):
     else:
         shutil.move(source, dest)
 
-    return temp_dir, task_id, dest
+    return (
+        dest,
+        temp_dir,
+        task_id,
+    )
 
 
 def filter_files(files):
@@ -79,24 +83,34 @@ def expand_files(*paths):
             yield path
 
 
+def _screen(path, temp, task_id):
+    return [
+        "/opt/homebrew/bin/screen",
+        "-L",
+        "-Logfile",
+        os.path.join(temp, "screen.log"),
+        "-S",
+        "cmd-{task_id}".format(task_id=task_id),
+        "-dm",
+        "/bin/sh",
+        path,
+    ]
+
+
 def grab_and_run(
-    file, builder=lambda path: ("/bin/sh", path), name=None, task_name="switch_task_run", copy = False
+    file,
+    builder=_screen,
+    name=None,
+    task_name="switch_task_run",
+    copy=False,
+    wait_for_result=False,
 ):
-    temp, task_id, path = file_to_temp_dir(file, task_name, name=name, copy = copy)
+    path, temp, task_id = file_to_temp_dir(file, task_name, name=name, copy=copy)
 
     click.echo("Running {path}".format(path=path))
 
-    subprocess.Popen(
-        [
-            "/opt/homebrew/bin/screen",
-            "-L",
-            "-Logfile",
-            os.path.join(temp, "screen.log"),
-            "-S",
-            "cmd-{task_id}".format(task_id=task_id),
-            "-dm",
-            *builder(path),
-        ],
+    return subprocess.Popen(
+        builder(path, temp, task_id),
         stdin=subprocess.PIPE,
         stdout=sys.stdout,
         stderr=sys.stderr,
@@ -210,12 +224,10 @@ def ftpserver(host, port, perm, urls, watch):
 )
 def upload(files, unique, s3, notify, copy):
 
-    should_notify = False
-
-    for file in expand_files(*files):
+    processes = tuple(
         grab_and_run(
             file,
-            lambda path: (
+            lambda path, temp, task_id: (
                 "/opt/homebrew/bin/aws",
                 "s3",
                 "cp",
@@ -230,15 +242,19 @@ def upload(files, unique, s3, notify, copy):
             )
             or None,
             task_name="switch_file_upload",
-            copy=copy
+            copy=copy,
         )
-        should_notify = True
+        for file in expand_files(*files)
+    )
 
-    if should_notify and notify:
+    for p in processes:
+        p.wait()
+
+    if notify and processes:
 
         # Send the POST request
 
-        click.echo('Sending notification', err = True)
+        click.echo("Sending notification", err=True)
 
         conn = http.client.HTTPSConnection("sprint24.com")
 
@@ -253,7 +269,7 @@ def upload(files, unique, s3, notify, copy):
 
         resp = conn.getresponse()
 
-        click.echo(resp.read(), err = True)
+        click.echo(resp.read(), err=True)
 
         assert resp.status == 200
 
