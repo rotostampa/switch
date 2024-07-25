@@ -24,5 +24,3 @@ platformdirs==4.2.2
     # via black
 pyftpdlib==1.5.10
     # via switch
-watchdog==4.0.1
-    # via switch
