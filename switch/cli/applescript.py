@@ -45,11 +45,10 @@ def run_applescript_on_files(template, context_function, files, unique, copy, ou
 
 TO_POSTSCRIPT = """
 
-
 tell application "Adobe Acrobat"
-
+    
     close all docs saving no
-
+    
     -- Define the input and output paths
     set inputPath to POSIX file {pdf} as alias
     set outputPath to POSIX path of {postscript}
@@ -57,15 +56,37 @@ tell application "Adobe Acrobat"
     -- Open the input PDF document
     open alias inputPath
     
-    -- Get the front document (the opened PDF)
-    set theDocument to front document
     
-    -- Convert to PostScript
-    save theDocument to outputPath using PostScript Conversion
+    -- Get the file alias of the opened document
+    set inputPathPOSIX to POSIX path of inputPath
     
-    -- Close the document
-    close theDocument
+    -- Iterate through all open documents to find the matching one
+    repeat with doc in documents
+        -- Get the file alias of the current document
+        set docPath to file alias of doc
+        set docPathPOSIX to POSIX path of docPath
+        
+        -- Check if the paths match
+        if docPathPOSIX is equal to inputPathPOSIX then
+            -- Found the matching document, set it to a variable
+            
+            -- Convert to PostScript
+            save doc to outputPath using PostScript Conversion
+            
+            -- Close the document
+            close doc saving no
+            
+            exit repeat -- Exit the loop once the matching document is found
+        end if
+        
+        -- Close the document
+        close doc saving no
+        
+    end repeat
+    
+    
 end tell
+
 
 
 """
