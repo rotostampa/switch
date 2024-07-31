@@ -41,8 +41,8 @@ TO_POSTSCRIPT = """
 
 tell application "Adobe Acrobat"
     -- Define the input and output paths
-    set inputPath to POSIX file {input} as alias
-    set outputPath to POSIX path of {output}
+    set inputPath to POSIX file {pdf} as alias
+    set outputPath to POSIX path of {postscript}
     
     -- Open the input PDF document
     open alias inputPath
@@ -69,10 +69,10 @@ end tell
 @click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
 @click.option("--copy", is_flag=True, help="Copy the file instead of moving it")
 def pdf_to_ps(files, unique, copy, output):
-    run_applescript_on_files(
+    return run_applescript_on_files(
         context_function=lambda path, output, stem, **opts: {
-            "input": path,
-            "output": os.path.join(output, "{}.ps".format(stem)),
+            "pdf": path,
+            "postscript": os.path.join(output, "{}.ps".format(stem)),
         },
         template=TO_POSTSCRIPT,
         files=files,
@@ -86,8 +86,8 @@ DISTILL = """
 
 tell application "Acrobat Distiller"
     -- Define the input and output paths
-    set inputPath to POSIX file {input} as alias
-    set outputPath to POSIX path of {output}
+    set inputPath to POSIX file {postscript} as alias
+    set outputPath to POSIX path of {folder}
     
     -- Open the input PDF document
     
@@ -107,10 +107,10 @@ end tell
 @click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
 @click.option("--copy", is_flag=True, help="Copy the file instead of moving it")
 def distill(files, unique, copy, output):
-    run_applescript_on_files(
+    return run_applescript_on_files(
         context_function=lambda path, output, stem, **opts: {
-            "input": path,
-            "output": output,
+            "postscript": path,
+            "folder": output,
         },
         template=DISTILL,
         files=files,
