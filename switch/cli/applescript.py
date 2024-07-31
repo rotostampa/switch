@@ -29,7 +29,7 @@ def run_applescript_on_files(template, context_function, files, unique, copy, ou
                         **context_function(
                             path=path,
                             temp=temp,
-                            output=output or temp,
+                            output=os.path.abspath(output or temp),
                             stem=Path(path).stem,
                         ),
                     )
