@@ -9,6 +9,11 @@ from pathlib import Path
 from switch.utils.applescript import applescript_from_template
 
 
+def echo(c):
+    click.echo(c)
+    return c
+
+
 def run_applescript_on_files(template, context_function, files, unique, copy, output):
 
     for file in expand_files(*files):
@@ -18,21 +23,23 @@ def run_applescript_on_files(template, context_function, files, unique, copy, ou
             lambda path, temp, task_id: (
                 "/usr/bin/osascript",
                 "-e",
-                applescript_from_template(
-                    template,
-                    **context_function(
-                        path=path,
-                        temp=temp,
-                        output=output or temp,
-                        stem=Path(path).stem,
-                    ),
+                echo(
+                    applescript_from_template(
+                        template,
+                        **context_function(
+                            path=path,
+                            temp=temp,
+                            output=output or temp,
+                            stem=Path(path).stem,
+                        ),
+                    )
                 ),
             ),
             task_name="switch_applescript",
             unique=unique,
             copy=copy,
             wait_for_result=True,
-            cleanup=True
+            cleanup=True,
         )
 
 
