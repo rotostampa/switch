@@ -33,12 +33,11 @@ def upload(files, unique, s3, notify, copy):
             task_name="switch_file_upload",
             unique=unique,
             copy=copy,
+            wait_for_result=True,
+            cleanup=True
         )
         for file in expand_files(*files)
     )
-
-    for p in processes:
-        p.wait()
 
     if notify and processes:
 

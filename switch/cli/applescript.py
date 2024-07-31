@@ -13,7 +13,7 @@ def run_applescript_on_files(template, context_function, files, unique, copy, ou
 
     for file in expand_files(*files):
 
-        p = grab_and_run(
+        grab_and_run(
             file,
             lambda path, temp, task_id: (
                 "/usr/bin/osascript",
@@ -31,9 +31,9 @@ def run_applescript_on_files(template, context_function, files, unique, copy, ou
             task_name="switch_applescript",
             unique=unique,
             copy=copy,
+            wait_for_result=True,
+            cleanup=True
         )
-
-        p.wait()
 
 
 TO_POSTSCRIPT = """
