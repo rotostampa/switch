@@ -39,7 +39,7 @@ def run_applescript_on_files(template, context_function, files, unique, copy, ou
             unique=unique,
             copy=copy,
             wait_for_result=True,
-            cleanup=True,
+            cleanup=False,
         )
 
 
