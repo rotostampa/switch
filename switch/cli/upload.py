@@ -1,11 +1,9 @@
 import http.client
-import os
 import urllib.parse
 
 import click
 from switch.utils.files import expand_files
 from switch.utils.run import grab_and_run
-from switch.utils.uuid import uuid7
 
 
 @click.command(
@@ -32,8 +30,8 @@ def upload(files, unique, s3, notify, copy):
                 "--acl",
                 "public-read",
             ),
-            unique=unique,
             task_name="switch_file_upload",
+            unique=unique,
             copy=copy,
         )
         for file in expand_files(*files)
@@ -65,6 +63,3 @@ def upload(files, unique, s3, notify, copy):
 
         assert resp.status == 200
 
-
-if __name__ == "__main__":
-    upload()
