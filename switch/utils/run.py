@@ -51,7 +51,12 @@ def file_to_temp_dir(source, task_name, unique=False, copy=False):
 
 
 def grab_and_run(
-    file, builder=_screen, task_name="switch_task_run", wait_for_result=False, cleanup=False, **opts
+    file,
+    builder=_screen,
+    task_name="switch_task_run",
+    wait_for_result=False,
+    cleanup=False,
+    **opts,
 ):
     path, temp, task_id = file_to_temp_dir(file, task_name, **opts)
 

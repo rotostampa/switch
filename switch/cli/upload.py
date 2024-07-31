@@ -34,7 +34,7 @@ def upload(files, unique, s3, notify, copy):
             unique=unique,
             copy=copy,
             wait_for_result=True,
-            cleanup=True
+            cleanup=True,
         )
         for file in expand_files(*files)
     )
