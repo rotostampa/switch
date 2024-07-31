@@ -1,4 +1,4 @@
 if __name__ == "__main__":
-    from switch import cli
+    from switch.cli import cli
 
     cli()
