@@ -10,7 +10,8 @@ def cli():
 
 for module, cmd in (
     ("switch.cli.ftpserver", "ftpserver"),
-    ("switch.cli.pdf_to_ps", "pdf_to_ps"),
+    ("switch.cli.applescript", "pdf_to_ps"),
+    ("switch.cli.applescript", "distill"),
     ("switch.cli.upload", "upload"),
 ):
 
