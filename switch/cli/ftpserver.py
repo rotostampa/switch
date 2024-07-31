@@ -98,3 +98,7 @@ def ftpserver(host, port, perm, urls, watch):
 
     server = FTPServer((host, port), handler)
     server.serve_forever()
+
+
+if __name__ == "__main__":
+    ftpserver()

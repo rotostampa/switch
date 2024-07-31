@@ -68,3 +68,7 @@ def upload(files, unique, s3, notify, copy):
         click.echo(resp.read(), err=True)
 
         assert resp.status == 200
+
+
+if __name__ == "__main__":
+    upload()
