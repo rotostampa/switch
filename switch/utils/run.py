@@ -1,0 +1,66 @@
+import os
+import subprocess
+import sys
+
+import click
+
+
+def _screen(path, temp, task_id):
+    return [
+        "/opt/homebrew/bin/screen",
+        "-L",
+        "-Logfile",
+        os.path.join(temp, "screen.log"),
+        "-S",
+        "cmd-{task_id}".format(task_id=task_id),
+        "-dm",
+        "/bin/sh",
+        path,
+    ]
+
+
+import shutil
+import tempfile
+
+from switch.utils.uuid import uuid7
+
+
+def file_to_temp_dir(source, task_name, name=None, copy=False):
+    task_id = uuid7()
+
+    # Create a temporary directory with the UUID name
+    temp_dir = os.path.join(tempfile.gettempdir(), task_name, str(task_id))
+    os.makedirs(temp_dir)
+
+    # Define the destination file path
+    dest = os.path.join(temp_dir, name or os.path.basename(source))
+
+    # Move the file to the new directory
+
+    if copy:
+        shutil.copy(source, dest)
+    else:
+        shutil.move(source, dest)
+
+    return (dest, temp_dir, task_id)
+
+
+def grab_and_run(
+    file,
+    builder=_screen,
+    name=None,
+    task_name="switch_task_run",
+    copy=False,
+    wait_for_result=False,
+):
+    path, temp, task_id = file_to_temp_dir(file, task_name, name=name, copy=copy)
+
+    click.echo("Running {path}".format(path=path))
+
+    return subprocess.Popen(
+        builder(path, temp, task_id),
+        stdin=subprocess.PIPE,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        env=os.environ,
+    )

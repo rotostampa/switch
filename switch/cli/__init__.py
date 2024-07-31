@@ -1,157 +1,22 @@
+import http.client
+import os
+import pathlib
+import shutil
+import ssl
+import subprocess
+import sys
+import tempfile
+import time
+import urllib.parse
+import uuid
+from urllib.parse import urlparse
+
+import click
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
-from urllib.parse import urlparse
-import click
-import os
-import subprocess
-import shutil
-import sys
-import tempfile
-import pathlib
-import uuid
-import time
-import http.client
-import urllib.parse
-import ssl
-
-
-def uuid7():
-    # https://antonz.org/uuidv7/#python
-
-    # random bytes
-    value = bytearray(os.urandom(16))
-
-    # current timestamp in ms
-    timestamp = int(time.time() * 1000)
-
-    # timestamp
-    value[0] = (timestamp >> 40) & 0xFF
-    value[1] = (timestamp >> 32) & 0xFF
-    value[2] = (timestamp >> 24) & 0xFF
-    value[3] = (timestamp >> 16) & 0xFF
-    value[4] = (timestamp >> 8) & 0xFF
-    value[5] = timestamp & 0xFF
-
-    # version and variant
-    value[6] = (value[6] & 0x0F) | 0x70
-    value[8] = (value[8] & 0x3F) | 0x80
-
-    return uuid.UUID(bytes=bytes(value))
-
-
-# WORKER LOGIC
-
-
-def file_to_temp_dir(source, task_name, name=None, copy=False):
-    task_id = uuid7()
-
-    # Create a temporary directory with the UUID name
-    temp_dir = os.path.join(tempfile.gettempdir(), task_name, str(task_id))
-    os.makedirs(temp_dir)
-
-    # Define the destination file path
-    dest = os.path.join(temp_dir, name or os.path.basename(source))
-
-    # Move the file to the new directory
-
-    if copy:
-        shutil.copy(source, dest)
-    else:
-        shutil.move(source, dest)
-
-    return (
-        dest,
-        temp_dir,
-        task_id,
-    )
-
-
-def filter_files(files):
-    for file in map(os.path.realpath, files):
-        if not os.path.exists(file):
-            click.echo("file {file} does not exists".format(file=file), err=True)
-        else:
-            yield file
-
-
-def expand_files(*paths):
-    for path in filter_files(paths):
-        if os.path.isdir(path):
-            yield from os.scandir(path)
-        else:
-            yield path
-
-
-def _screen(path, temp, task_id):
-    return [
-        "/opt/homebrew/bin/screen",
-        "-L",
-        "-Logfile",
-        os.path.join(temp, "screen.log"),
-        "-S",
-        "cmd-{task_id}".format(task_id=task_id),
-        "-dm",
-        "/bin/sh",
-        path,
-    ]
-
-
-def grab_and_run(
-    file,
-    builder=_screen,
-    name=None,
-    task_name="switch_task_run",
-    copy=False,
-    wait_for_result=False,
-):
-    path, temp, task_id = file_to_temp_dir(file, task_name, name=name, copy=copy)
-
-    click.echo("Running {path}".format(path=path))
-
-    return subprocess.Popen(
-        builder(path, temp, task_id),
-        stdin=subprocess.PIPE,
-        stdout=sys.stdout,
-        stderr=sys.stderr,
-        env=os.environ,
-    )
-
-
-# FTP SERVER LOGIC
-
-
-def validate_url(ctx, param, value):
-    for v in value:
-        try:
-            parsed_url = urlparse(v, scheme="file")  # Parse the FTP URL
-
-            if parsed_url.scheme.lower() != "file":
-                raise click.BadParameter(
-                    "Only File URLs are supported. %s" % (parsed_url,)
-                )
-
-            if parsed_url.hostname not in ("localhost", "", None):
-                raise click.BadParameter(
-                    "Only localhost is supported, hostname is %s"
-                    % (parsed_url.hostname,)
-                )
-
-        except ValueError:
-            raise click.BadParameter(
-                'Invalid FILE URL format. It should be in the form "file://user:admin@localhost/path/to/folder"'
-            )
-
-        yield parsed_url
-
-
-class ActionFTPHandler(FTPHandler):
-    folder_actions = {}
-
-    def on_file_received(self, file):
-        for path, action in self.folder_actions.items():
-            if file.startswith(path):
-                action(pathlib.Path(file))
+from switch.cli.ftpserver import ftpserver
+from switch.cli.upload import upload
 
 
 @click.group()
@@ -159,119 +24,8 @@ def cli():
     pass
 
 
-@cli.command(
-    help="Start an ftp server. Use a list of urls such as file://user:admin@localhost/path/to/folder to define folders"
-)
-@click.option("--host", default="0.0.0.0", help="Host IP address to bind to")
-@click.option("--port", default=7500, help="Port number to bind to")
-@click.option("--perm", default=None, help="Permission string")
-@click.option(
-    "--watch", multiple=True, type=click.Path(), help="Folders to watch for changes"
-)
-@click.argument("urls", nargs=-1, callback=validate_url)
-def ftpserver(host, port, perm, urls, watch):
-    authorizer = DummyAuthorizer()
-
-    for url in urls:
-        click.echo(str(url))
-
-        authorizer.add_user(
-            url.username or "admin",
-            url.password or "admin",
-            url.path or ".",
-            perm=perm or "elradfmwMT",
-        )
-
-    handler = ActionFTPHandler
-    handler.authorizer = authorizer
-    handler.permit_foreign_addresses = True
-
-    for folders, action in ((watch, grab_and_run),):
-        if folders := tuple(filter_files(folders)):
-            for folder in folders:
-                for file in os.scandir(folder):
-                    action(file)
-
-                click.echo("Watching folder {folder} for changes".format(folder=folder))
-
-                handler.folder_actions[folder] = action
-
-    click.echo(
-        (
-            "Starting ftp server at {protocol}://{addr}:{port}/\n"
-            "Quit the process with {quit_command}.\n"
-        ).format(
-            protocol="ftp",
-            addr=host,
-            port=port,
-            quit_command="CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C",
-        )
-    )
-
-    server = FTPServer((host, port), handler)
-    server.serve_forever()
-
-
-@cli.command(
-    help="Upload files to s3 and signal sprint24 they are ready for collection"
-)
-@click.argument("files", nargs=-1, type=click.Path())
-@click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
-@click.option("--notify", is_flag=True, help="Send a notification")
-@click.option("--copy", is_flag=True, help="Copy the file instead of moving it")
-@click.option(
-    "--s3", default="s3://workflow-upload/", help="Add a unique prefix to the files"
-)
-def upload(files, unique, s3, notify, copy):
-
-    processes = tuple(
-        grab_and_run(
-            file,
-            lambda path, temp, task_id: (
-                "/opt/homebrew/bin/aws",
-                "s3",
-                "cp",
-                path,
-                s3,
-                "--acl",
-                "public-read",
-            ),
-            name=unique
-            and "{uuid}-{basename}".format(
-                uuid=uuid7(), basename=os.path.basename(file)
-            )
-            or None,
-            task_name="switch_file_upload",
-            copy=copy,
-        )
-        for file in expand_files(*files)
-    )
-
-    for p in processes:
-        p.wait()
-
-    if notify and processes:
-
-        # Send the POST request
-
-        click.echo("Sending notification", err=True)
-
-        conn = http.client.HTTPSConnection("sprint24.com")
-
-        conn.request(
-            "POST",
-            "/api/storage/switch-notify-file/",
-            body=urllib.parse.urlencode(
-                {"token": "5f5d24c0-a0c0-4f6c-b2b4-2414fac5eaa5"}
-            ).encode("utf-8"),
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-        )
-
-        resp = conn.getresponse()
-
-        click.echo(resp.read(), err=True)
-
-        assert resp.status == 200
+cli.add_command(ftpserver)
+cli.add_command(upload)
 
 
 if __name__ == "__main__":
