@@ -9,10 +9,6 @@ from pathlib import Path
 from switch.utils.applescript import applescript_from_template
 
 
-
-
-
-
 def run_applescript_on_files(template, context_function, files, unique, copy, output):
 
     for file in expand_files(*files):
@@ -64,6 +60,7 @@ end tell
 
 """
 
+
 @click.command(help="Convert pdf to postscript using applescript")
 @click.argument("files", nargs=-1, type=click.Path())
 @click.option(
@@ -85,7 +82,6 @@ def pdf_to_ps(files, unique, copy, output):
     )
 
 
-
 DISTILL = """
 
 tell application "Acrobat Distiller"
@@ -101,6 +97,7 @@ tell application "Acrobat Distiller"
 end tell
 
 """
+
 
 @click.command(help="Distill postscript using applescript")
 @click.argument("files", nargs=-1, type=click.Path())
@@ -121,4 +118,3 @@ def distill(files, unique, copy, output):
         copy=copy,
         output=output,
     )
-
