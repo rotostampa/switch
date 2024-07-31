@@ -47,6 +47,9 @@ TO_POSTSCRIPT = """
 
 
 tell application "Adobe Acrobat"
+
+    close all docs saving no
+
     -- Define the input and output paths
     set inputPath to POSIX file {pdf} as alias
     set outputPath to POSIX path of {postscript}
