@@ -62,4 +62,3 @@ def upload(files, unique, s3, notify, copy):
         click.echo(resp.read(), err=True)
 
         assert resp.status == 200
-

@@ -13,12 +13,8 @@ def to_applescript(s):
     elif s is None:
         return "null"
     elif isinstance(s, dict):
-        return mark_safe(
-            "{{ {} }}".format(
-                ",".join(
-                    ("{}: {}".format(key, to_applescript(v)) for key, v in s.items())
-                )
-            )
+        return "{{ {} }}".format(
+            ",".join(("{}: {}".format(key, to_applescript(v)) for key, v in s.items()))
         )
     elif isinstance(s, (list, tuple, set, frozenset, chain, types.GeneratorType)):
         return "{{ {} }}".format(",".join([to_applescript(v) for v in s]))

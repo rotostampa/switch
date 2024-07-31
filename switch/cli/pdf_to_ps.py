@@ -1,12 +1,14 @@
 import os
 
 import click
-from functools import partial
+
 from switch.utils.files import expand_files
 from switch.utils.run import grab_and_run
+from pathlib import Path
+
 from switch.utils.applescript import applescript_from_template
 
-TEMPLATE = """
+TO_POSTSCRIPT = """
 
 
 tell application "Adobe Acrobat"
@@ -31,21 +33,31 @@ end tell
 """
 
 
-def make_applescript(path, temp, task_id, output=None):
+def run_applescript_on_files(template, context_function, files, unique, copy, output):
 
-    output = os.path.join(output or temp, os.path.basename(path) + ".ps")
+    for file in expand_files(*files):
 
-    click.echo(output)
-
-    return (
-        "/usr/bin/osascript",
-        "-e",
-        applescript_from_template(
-            TEMPLATE,
-            input=path,
-            output=output
+        p = grab_and_run(
+            file,
+            lambda path, temp, task_id: (
+                "/usr/bin/osascript",
+                "-e",
+                applescript_from_template(
+                    template,
+                    **context_function(
+                        path=path,
+                        temp=temp,
+                        output=output or temp,
+                        stem=Path(path).stem,
+                    ),
+                ),
+            ),
+            task_name="switch_applescript",
+            unique=unique,
+            copy=copy,
         )
-    )
+
+        p.wait()
 
 
 @click.command(help="Convert pdf to postscript using applescript")
@@ -56,15 +68,14 @@ def make_applescript(path, temp, task_id, output=None):
 @click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
 @click.option("--copy", is_flag=True, help="Copy the file instead of moving it")
 def pdf_to_ps(files, unique, copy, output):
-
-    for file in expand_files(*files):
-
-        p = grab_and_run(
-            file,
-            partial(make_applescript, output=output),
-            task_name="switch_applescript_postscript",
-            unique=unique,
-            copy=copy,
-        )
-
-        p.wait()
+    run_applescript_on_files(
+        context_function=lambda path, output, stem, **opts: {
+            "input": path,
+            "output": os.path.join(output, "{}.ps".format(stem)),
+        },
+        template=TO_POSTSCRIPT,
+        files=files,
+        unique=unique,
+        copy=copy,
+        output=output,
+    )
