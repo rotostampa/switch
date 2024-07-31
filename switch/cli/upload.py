@@ -32,11 +32,7 @@ def upload(files, unique, s3, notify, copy):
                 "--acl",
                 "public-read",
             ),
-            name=unique
-            and "{uuid}-{basename}".format(
-                uuid=uuid7(), basename=os.path.basename(file)
-            )
-            or None,
+            unique=unique,
             task_name="switch_file_upload",
             copy=copy,
         )

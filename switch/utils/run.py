@@ -25,7 +25,7 @@ import tempfile
 from switch.utils.uuid import uuid7
 
 
-def file_to_temp_dir(source, task_name, name=None, copy=False):
+def file_to_temp_dir(source, task_name, unique=False, copy=False):
     task_id = uuid7()
 
     # Create a temporary directory with the UUID name
@@ -33,7 +33,12 @@ def file_to_temp_dir(source, task_name, name=None, copy=False):
     os.makedirs(temp_dir)
 
     # Define the destination file path
-    dest = os.path.join(temp_dir, name or os.path.basename(source))
+    dest = os.path.join(
+        temp_dir,
+        unique
+        and "{uuid}-{basename}".format(uuid=uuid7(), basename=os.path.basename(source))
+        or os.path.basename(source),
+    )
 
     # Move the file to the new directory
 
@@ -46,14 +51,9 @@ def file_to_temp_dir(source, task_name, name=None, copy=False):
 
 
 def grab_and_run(
-    file,
-    builder=_screen,
-    name=None,
-    task_name="switch_task_run",
-    copy=False,
-    wait_for_result=False,
+    file, builder=_screen, task_name="switch_task_run", wait_for_result=False, **opts
 ):
-    path, temp, task_id = file_to_temp_dir(file, task_name, name=name, copy=copy)
+    path, temp, task_id = file_to_temp_dir(file, task_name, **opts)
 
     click.echo("Running {path}".format(path=path))
 
