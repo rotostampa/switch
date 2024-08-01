@@ -92,10 +92,12 @@ tell application "Adobe Acrobat"
 
     tell application "System Events"
         keystroke "w" using command down
+        keystroke "w" using command down
+        keystroke "w" using command down
     end tell
     
 
-    
+
     
 end tell
 
