@@ -49,6 +49,17 @@ def file_to_temp_dir(source, task_name, unique=False, copy=False):
 
     return (dest, temp_dir, task_id)
 
+def run(args, wait_for_result=False):
+    p = subprocess.Popen(
+        args,
+        stdin=subprocess.PIPE,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        env=os.environ,
+    )
+    if wait_for_result:
+        p.wait()
+    return p
 
 def grab_and_run(
     file,
@@ -62,16 +73,10 @@ def grab_and_run(
 
     click.echo("Running {path}".format(path=path))
 
-    p = subprocess.Popen(
+    p = run(
         builder(path, temp, task_id),
-        stdin=subprocess.PIPE,
-        stdout=sys.stdout,
-        stderr=sys.stderr,
-        env=os.environ,
+        wait_for_result=wait_for_result
     )
-
-    if wait_for_result:
-        p.wait()
 
     if cleanup:
         shutil.rmtree(temp)
