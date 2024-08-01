@@ -80,16 +80,13 @@ tell application "Adobe Acrobat"
             -- Convert to PostScript
             save doc to outputPath using {format} Conversion
             
-            -- Close the document
-            close doc saving no
-            
             exit repeat -- Exit the loop once the matching document is found
         end if
-        
-        -- Close the document
-        close doc saving no
+
         
     end repeat
+
+    close all docs saving no
     
     
 end tell
