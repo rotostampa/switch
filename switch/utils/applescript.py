@@ -1,10 +1,13 @@
 import types
 from itertools import chain
 
+class raw(str):
+    pass
 
 def to_applescript(s):
-
-    if isinstance(s, (str,)):
+    if isinstance(s, (raw,)):
+        return s
+    elif isinstance(s, (str,)):
         return '"{}"'.format(s.replace(r'"', r"\""))
     elif isinstance(s, (int, float)):
         return "{}".format(s)
