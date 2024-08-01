@@ -88,6 +88,14 @@ tell application "Adobe Acrobat"
 
     close all docs saving no
     
+    activate
+
+    tell application "System Events"
+        keystroke "w" using command down
+    end tell
+    
+
+    
     
 end tell
 
