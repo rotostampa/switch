@@ -1,4 +1,3 @@
-
 from switch.utils.uuid import uuid7
 import click
 import os
@@ -6,6 +5,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+
 
 def _screen(path, temp, task_id):
     return [

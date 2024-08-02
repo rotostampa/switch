@@ -3,6 +3,12 @@ import os
 import click
 
 
+def ensure_dir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+    return path
+
+
 def filter_files(files):
     for file in map(os.path.realpath, files):
         if not os.path.exists(file):

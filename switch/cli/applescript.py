@@ -2,9 +2,10 @@ import os
 
 import click
 
-from switch.utils.files import expand_files
+from switch.utils.files import expand_files, ensure_dir
 from switch.utils.run import run
 from pathlib import Path
+
 
 from switch.utils.applescript import applescript_from_template, raw
 
@@ -12,12 +13,6 @@ from switch.utils.applescript import applescript_from_template, raw
 def _ensure_empty(path):
     if os.path.exists(path):
         os.remove(path)
-    return path
-
-
-def _ensure_dir(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
     return path
 
 
@@ -40,7 +35,7 @@ def run_applescript_on_files(template, context_function, files, output):
                         **context_function(
                             path=file,
                             stem=Path(file).stem,
-                            output=_ensure_dir(
+                            output=ensure_dir(
                                 os.path.realpath(output or os.path.dirname(file))
                             ),
                         ),
