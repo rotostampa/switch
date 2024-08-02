@@ -23,6 +23,10 @@ def acquire_lock(lock, wait_time=0.3, retry_time=0.1):
 
         while True:
 
+            t.seek(0)
+            t.write(str(time.time()))
+
+
             try:
                 os.link(t.name, path)
                 break
@@ -45,7 +49,7 @@ def acquire_lock(lock, wait_time=0.3, retry_time=0.1):
 
             time.sleep(retry_time)
 
-        t.write(str(time.time()))
+        
 
         print("acquired")
 
