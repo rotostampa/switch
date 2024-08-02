@@ -1,9 +1,11 @@
+
+from switch.utils.uuid import uuid7
+import click
 import os
+import shutil
 import subprocess
 import sys
-
-import click
-
+import tempfile
 
 def _screen(path, temp, task_id):
     return [
@@ -17,12 +19,6 @@ def _screen(path, temp, task_id):
         "/bin/sh",
         path,
     ]
-
-
-import shutil
-import tempfile
-
-from switch.utils.uuid import uuid7
 
 
 def file_to_temp_dir(source, task_name, unique=False, copy=False):
@@ -49,6 +45,7 @@ def file_to_temp_dir(source, task_name, unique=False, copy=False):
 
     return (dest, temp_dir, task_id)
 
+
 def run(args, wait_for_result=False):
     p = subprocess.Popen(
         args,
@@ -60,6 +57,7 @@ def run(args, wait_for_result=False):
     if wait_for_result:
         p.wait()
     return p
+
 
 def grab_and_run(
     file,
@@ -73,10 +71,7 @@ def grab_and_run(
 
     click.echo("Running {path}".format(path=path))
 
-    p = run(
-        builder(path, temp, task_id),
-        wait_for_result=wait_for_result
-    )
+    p = run(builder(path, temp, task_id), wait_for_result=wait_for_result)
 
     if cleanup:
         shutil.rmtree(temp)

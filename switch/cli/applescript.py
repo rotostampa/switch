@@ -3,7 +3,7 @@ import os
 import click
 
 from switch.utils.files import expand_files
-from switch.utils.run import grab_and_run, run
+from switch.utils.run import run
 from pathlib import Path
 
 from switch.utils.applescript import applescript_from_template, raw
@@ -28,7 +28,6 @@ def echo(c):
 
 def run_applescript_on_files(template, context_function, files, output):
 
-
     for file in expand_files(*files):
 
         run(
@@ -41,7 +40,9 @@ def run_applescript_on_files(template, context_function, files, output):
                         **context_function(
                             path=file,
                             stem=Path(file).stem,
-                            output=_ensure_dir(os.path.realpath(output or os.path.dirname(file))),
+                            output=_ensure_dir(
+                                os.path.realpath(output or os.path.dirname(file))
+                            ),
                         ),
                     )
                 ),
@@ -106,21 +107,20 @@ end tell
 """
 
 
-
 @click.command(help="Convert pdf to postscript using applescript")
 @click.argument("files", nargs=-1, type=click.Path())
 @click.option(
     "--output", help="Directory where the file should go, defaults to temp directory"
 )
 @click.option("--eps", is_flag=True, help="Export as eps")
-
-
 def pdf_to_ps(files, output, eps):
     return run_applescript_on_files(
         context_function=lambda path, output, stem, **opts: {
             "pdf": path,
-            "target": _ensure_empty(os.path.join(output, "{}.{}".format(stem, eps and 'eps' or 'ps'))),
-            "format": raw(eps and 'EPS' or 'Postscript')
+            "target": _ensure_empty(
+                os.path.join(output, "{}.{}".format(stem, eps and "eps" or "ps"))
+            ),
+            "format": raw(eps and "EPS" or "Postscript"),
         },
         template=TO_POSTSCRIPT,
         files=files,
@@ -158,6 +158,5 @@ def distill(files, output):
         },
         template=DISTILL,
         files=files,
-
         output=output,
     )

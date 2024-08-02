@@ -1,8 +1,10 @@
 import types
 from itertools import chain
 
+
 class raw(str):
     pass
+
 
 def to_applescript(s):
     if isinstance(s, (raw,)):
