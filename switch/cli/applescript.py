@@ -1,13 +1,10 @@
 import os
-
-import click
-
-from switch.utils.files import expand_files, ensure_dir
-from switch.utils.run import run
 from pathlib import Path
 
-
+import click
 from switch.utils.applescript import applescript_from_template, raw
+from switch.utils.files import ensure_dir, expand_files
+from switch.utils.run import run
 
 
 def _ensure_empty(path):
@@ -49,41 +46,41 @@ def run_applescript_on_files(template, context_function, files, output):
 TO_POSTSCRIPT = """
 
 tell application "Adobe Acrobat"
-    
+
     close all docs saving no
-    
+
     -- Define the input and output paths
     set inputPath to POSIX file {pdf} as alias
     set outputPath to POSIX path of {target}
-    
+
     -- Open the input PDF document
     open alias inputPath
-    
-    
+
+
     -- Get the file alias of the opened document
     set inputPathPOSIX to POSIX path of inputPath
-    
+
     -- Iterate through all open documents to find the matching one
     repeat with doc in documents
         -- Get the file alias of the current document
         set docPath to file alias of doc
         set docPathPOSIX to POSIX path of docPath
-        
+
         -- Check if the paths match
         if docPathPOSIX is equal to inputPathPOSIX then
             -- Found the matching document, set it to a variable
-            
+
             -- Convert to PostScript
             save doc to outputPath using {format} Conversion
-            
+
             exit repeat -- Exit the loop once the matching document is found
         end if
 
-        
+
     end repeat
 
     close all docs saving no
-    
+
     activate
 
     tell application "System Events"
@@ -91,10 +88,10 @@ tell application "Adobe Acrobat"
         keystroke "w" using command down
         keystroke "w" using command down
     end tell
-    
 
 
-    
+
+
 end tell
 
 
@@ -129,12 +126,12 @@ tell application "Acrobat Distiller"
     -- Define the input and output paths
     set inputPath to POSIX file {postscript} as alias
     set outputPath to POSIX path of {folder}
-    
+
     -- Open the input PDF document
-    
+
     Distill sourcePath inputPath destinationPath outputPath
-    
-    
+
+
 end tell
 
 """

@@ -1,6 +1,6 @@
+import time
 
 import click
-import time
 
 
 @click.command(help="Test wait")

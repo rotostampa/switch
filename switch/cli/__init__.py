@@ -1,26 +1,16 @@
-import click
-from functools import update_wrapper, partial
-
+import os
+import tempfile
+import threading
+import time
+from functools import partial
 from importlib import import_module
 
-from switch.utils.files import expand_files, ensure_dir
-import os
-import shutil
-import time
+import click
 import switch
-import uuid
-import fcntl
-import threading
-import tempfile
+from switch.utils.files import ensure_dir
 
 
-def lock_path(
-    lock,
-    basedir=os.path.join(
-        os.path.dirname(switch.__file__),
-        "locks",
-    ),
-):
+def lock_path(lock, basedir=os.path.join(os.path.dirname(switch.__file__), "locks")):
     return os.path.join(ensure_dir(basedir), "{}.lock".format(lock))
 
 
@@ -38,7 +28,7 @@ def acquire_lock(lock, wait_time=0.3, retry_time=0.1):
             except FileExistsError:
                 pass
 
-            with open(path, "r") as f:
+            with open(path) as f:
 
                 try:
                     lock_time = float(f.read())
@@ -101,9 +91,7 @@ def cli(ctx, lock):
         thread.daemon = True
         thread.start()
 
-        ctx.call_on_close(
-            partial(release_lock, temp=temp, thread=thread, lock=lock)
-        )
+        ctx.call_on_close(partial(release_lock, temp=temp, thread=thread, lock=lock))
 
 
 for module, cmd in (
