@@ -1,13 +1,14 @@
+
+from functools import partial
+from importlib import import_module
+from switch.utils.files import ensure_dir
+
+import click
 import os
+import switch
 import tempfile
 import threading
 import time
-from functools import partial
-from importlib import import_module
-
-import click
-import switch
-from switch.utils.files import ensure_dir
 
 
 def lock_path(lock, basedir=os.path.join(os.path.dirname(switch.__file__), "locks")):
@@ -79,6 +80,7 @@ def release_lock(thread, temp, lock):
     "--lock", help="Enable lock that writes timestamp to file every 0.1 seconds."
 )
 def cli(ctx, lock):
+
 
     if lock:
 
