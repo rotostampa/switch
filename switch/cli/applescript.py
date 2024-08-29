@@ -129,8 +129,9 @@ tell application "Acrobat Distiller"
 
     -- Open the input PDF document
 
-    Distill sourcePath inputPath destinationPath outputPath
-
+    with timeout of 900000 seconds
+        Distill sourcePath inputPath destinationPath outputPath
+    end timeout
 
 end tell
 
