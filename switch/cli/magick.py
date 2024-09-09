@@ -20,7 +20,7 @@ def png_to_tiff(files, output, unique, copy):
                 "/opt/homebrew/bin/magick",
                 path,
                 "-compress",
-                "zip",
+                "lzw",
                 os.path.join(
                     output or temp,
                     "{}.tiff".format(os.path.splitext(os.path.basename(path))[0]),
