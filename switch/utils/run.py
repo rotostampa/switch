@@ -48,6 +48,9 @@ def file_to_temp_dir(source, task_name, unique=False, copy=False):
 
 
 def run(args, wait_for_result=False):
+
+    click.echo("Running {}".format(args))
+
     p = subprocess.Popen(
         args,
         stdin=subprocess.PIPE,
