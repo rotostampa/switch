@@ -1,4 +1,3 @@
-
 from functools import partial
 from importlib import import_module
 from switch.utils.files import ensure_dir
@@ -26,7 +25,6 @@ def acquire_lock(lock, wait_time=0.3, retry_time=0.1):
             t.seek(0)
             t.write(str(time.time()))
 
-
             try:
                 os.link(t.name, path)
                 break
@@ -48,8 +46,6 @@ def acquire_lock(lock, wait_time=0.3, retry_time=0.1):
                     print("acquiring file failed", lock_time, time.time())
 
             time.sleep(retry_time)
-
-        
 
         print("acquired")
 
@@ -85,7 +81,6 @@ def release_lock(thread, temp, lock):
 )
 def cli(ctx, lock):
 
-
     if lock:
 
         temp = acquire_lock(lock=lock)
@@ -106,6 +101,7 @@ for module, cmd in (
     ("switch.cli.applescript", "distill"),
     ("switch.cli.upload", "upload"),
     ("switch.cli.noop", "wait"),
+    ("switch.cli.magick", "png_to_tiff"),
 ):
 
     cli.add_command(getattr(import_module(module), cmd))
