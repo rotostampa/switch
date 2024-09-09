@@ -21,8 +21,6 @@ def png_to_tiff(files, output, unique, copy):
                 path,
                 "-compress",
                 "zip",
-                "-define",
-                "tiff:alpha=unspecified",
                 os.path.join(
                     output or temp,
                     "{}.tiff".format(os.path.splitext(os.path.basename(path))[0]),
