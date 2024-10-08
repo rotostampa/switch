@@ -20,6 +20,7 @@ def png_to_tiff(files, output, unique, copy):
                 "/opt/homebrew/bin/magick",
                 path,
                 '-density', '360',
+                '-units', 'PixelsPerInch',
                 "-compress",
                 "lzw",
                 os.path.join(
