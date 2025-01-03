@@ -73,6 +73,7 @@ def ftpserver(host, port, perm, urls, watch):
     handler = ActionFTPHandler
     handler.authorizer = authorizer
     handler.permit_foreign_addresses = True
+    handler.passive_ports = range(port, port + 1)
 
     for folders, action in ((watch, grab_and_run),):
         if folders := tuple(filter_files(folders)):
