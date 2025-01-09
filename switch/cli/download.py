@@ -22,6 +22,7 @@ def make_temp_file(name, url, outfolder, base_directory):
     )
     print('👍 base_directory', base_directory)
     print('👍 outfolder', outfolder)
+    print('👍 name', name)
     print('👍 destination', os.path.join(outfolder, base_directory, name))
 
     print('-'* 20)
