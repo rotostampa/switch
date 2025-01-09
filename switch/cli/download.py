@@ -21,16 +21,6 @@ def make_temp_file(name, url, outfolder, base_directory):
         url = url,
         destination = os.path.abspath(os.path.join(base_directory, outfolder, name))
     )
-    print('👍 base_directory', base_directory)
-    print('👍 outfolder', outfolder)
-    print('👍 name', name)
-    print('👍 destination', os.path.join(base_directory, outfolder, name))
-
-    print('-'* 20)
-    print(content)
-
-    print('-'* 20)
-
     destination = os.path.join(tempfile.gettempdir(), '{}.sh'.format(operation_id))
 
     with open(destination, 'w') as f:
@@ -58,10 +48,6 @@ def download(files, **opts):
     for file in make_temp_files(files, **opts):
         grab_and_run(
             file,
-            lambda path, temp, task_id: (
-                "/bin/sh",
-                path,
-            ),
             task_name="switch_file_download",
             unique=False,
             copy=False,
