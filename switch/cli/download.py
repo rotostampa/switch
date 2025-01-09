@@ -20,11 +20,13 @@ def make_temp_file(name, url, outfolder, base_directory):
         name = name, url = url,
         destination = os.path.abspath(os.path.join(outfolder, base_directory, name))
     )
+    print('outfolder⚠️', base_directory)
+
     print('-'* 20)
     print(content)
 
     print('-'* 20)
-    
+
     destination = os.path.join(tempfile.gettempdir(), '{}.sh'.format(operation_id))
 
     with open(destination, 'w') as f:
