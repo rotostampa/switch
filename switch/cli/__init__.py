@@ -101,6 +101,7 @@ for module, cmd in (
     ("switch.cli.applescript", "distill"),
     ("switch.cli.upload", "upload"),
     ("switch.cli.download", "download"),
+    ("switch.cli.exec", "exec"),
     ("switch.cli.noop", "wait"),
     ("switch.cli.magick", "png_to_tiff"),
 ):
