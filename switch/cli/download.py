@@ -20,7 +20,8 @@ def make_temp_file(name, url, outfolder, base_directory):
         name = name, url = url,
         destination = os.path.abspath(os.path.join(outfolder, base_directory, name))
     )
-    print('outfolder⚠️', base_directory)
+    print('👍 base_directory', base_directory)
+    print('👍 outfolder', outfolder)
 
     print('-'* 20)
     print(content)
