@@ -1,14 +1,12 @@
 import json
 import os
-from functools import partial
 
 import click
-from switch.utils.run import grab_and_run, run
-from switch.utils.uuid import uuid7
+from switch.utils.run import run
 
 
 def get_download_destination(name, url, outfolder, base_directory):
-    return url, os.path.abspath(os.path.join(base_directory, outfolder, name)),
+    return url, os.path.abspath(os.path.join(base_directory, outfolder, name))
 
 
 def read_json_files(json_files, delete, **opts):
@@ -33,6 +31,6 @@ def read_json_files(json_files, delete, **opts):
 def download(files, **opts):
     for url, destination in read_json_files(files, **opts):
         run(
-            ['/usr/bin/curl', '-f', '-o', destination, url, '--compressed'],
+            ["/usr/bin/curl", "-f", "-o", destination, url, "--compressed"],
             wait_for_result=True,
         )

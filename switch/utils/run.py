@@ -21,8 +21,9 @@ def screen_runner(path, temp, task_id):
         path,
     ]
 
+
 def sh_runner(path, temp, task_id):
-    return ['/bin/sh', path]
+    return ["/bin/sh", path]
 
 
 def file_to_temp_dir(source, task_name, unique=False, copy=False, basename=None):
