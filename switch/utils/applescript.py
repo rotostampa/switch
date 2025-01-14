@@ -9,19 +9,19 @@ class raw(str):
 def to_applescript(s):
     if isinstance(s, (raw,)):
         return s
-    elif isinstance(s, (str,)):
+    if isinstance(s, (str,)):
         return '"{}"'.format(s.replace(r'"', r"\""))
-    elif isinstance(s, (int, float)):
+    if isinstance(s, (int, float)):
         return "{}".format(s)
-    elif isinstance(s, bool):
+    if isinstance(s, bool):
         return str(s).lower()
-    elif s is None:
+    if s is None:
         return "null"
-    elif isinstance(s, dict):
+    if isinstance(s, dict):
         return "{{ {} }}".format(
             ",".join(("{}: {}".format(key, to_applescript(v)) for key, v in s.items()))
         )
-    elif isinstance(s, (list, tuple, set, frozenset, chain, types.GeneratorType)):
+    if isinstance(s, (list, tuple, set, frozenset, chain, types.GeneratorType)):
         return "{{ {} }}".format(",".join([to_applescript(v) for v in s]))
     raise TypeError("unrecognized {}".format(repr(s)))
 

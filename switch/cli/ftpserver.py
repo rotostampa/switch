@@ -19,15 +19,11 @@ def validate_url(ctx, param, value):
             parsed_url = urlparse(v, scheme="file")  # Parse the FTP URL
 
             if parsed_url.scheme.lower() != "file":
-                raise click.BadParameter(
-                    "Only File URLs are supported. {}".format(parsed_url)
-                )
+                raise click.BadParameter("Only File URLs are supported. {}".format(parsed_url))
 
             if parsed_url.hostname not in ("localhost", "", None):
                 raise click.BadParameter(
-                    "Only localhost is supported, hostname is {}".format(
-                        parsed_url.hostname
-                    )
+                    "Only localhost is supported, hostname is {}".format(parsed_url.hostname)
                 )
 
         except ValueError:
@@ -53,9 +49,7 @@ class ActionFTPHandler(FTPHandler):
 @click.option("--host", default="0.0.0.0", help="Host IP address to bind to")
 @click.option("--port", default=7500, help="Port number to bind to")
 @click.option("--perm", default=None, help="Permission string")
-@click.option(
-    "--watch", multiple=True, type=click.Path(), help="Folders to watch for changes"
-)
+@click.option("--watch", multiple=True, type=click.Path(), help="Folders to watch for changes")
 @click.argument("urls", nargs=-1, callback=validate_url)
 def ftpserver(host, port, perm, urls, watch):
     authorizer = DummyAuthorizer()

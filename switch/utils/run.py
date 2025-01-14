@@ -22,13 +22,12 @@ def _screen(path, temp, task_id):
     ]
 
 
-def file_to_temp_dir(source, task_name, unique=False, copy=False, basename = None):
+def file_to_temp_dir(source, task_name, unique=False, copy=False, basename=None):
 
     if callable(source):
-        basename=basename or 'file.temp'
+        basename = basename or "file.temp"
     else:
-        basename=basename or os.path.basename(source)
-
+        basename = basename or os.path.basename(source)
 
     task_id = uuid7()
 
@@ -39,15 +38,13 @@ def file_to_temp_dir(source, task_name, unique=False, copy=False, basename = Non
     # Define the destination file path
     dest = os.path.join(
         temp_dir,
-        unique
-        and "{uuid}-{basename}".format(uuid=uuid7(), basename=basename)
-        or basename,
+        unique and "{uuid}-{basename}".format(uuid=uuid7(), basename=basename) or basename,
     )
 
     # Move the file to the new directory
 
     if callable(source):
-        with open(dest, 'w') as f:
+        with open(dest, "w") as f:
             source(f)
 
     elif copy:
@@ -63,11 +60,7 @@ def run(args, wait_for_result=False):
     click.echo("Running {}".format(args))
 
     p = subprocess.Popen(
-        args,
-        stdin=subprocess.PIPE,
-        stdout=sys.stdout,
-        stderr=sys.stderr,
-        env=os.environ,
+        args, stdin=subprocess.PIPE, stdout=sys.stdout, stderr=sys.stderr, env=os.environ
     )
     if wait_for_result:
         p.wait()

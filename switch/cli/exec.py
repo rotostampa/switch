@@ -1,10 +1,8 @@
-
 import click
 from switch.utils.run import grab_and_run
 
-@click.command(
-    help="Exec script files"
-)
+
+@click.command(help="Exec script files")
 @click.argument("files", nargs=-1, type=click.Path())
 @click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
 @click.option("--copy", is_flag=True, help="Copy the file instead of moving it")

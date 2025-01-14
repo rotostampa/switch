@@ -1,13 +1,13 @@
-from functools import partial
-from importlib import import_module
-from switch.utils.files import ensure_dir
-
-import click
 import os
-import switch
 import tempfile
 import threading
 import time
+from functools import partial
+from importlib import import_module
+
+import click
+import switch
+from switch.utils.files import ensure_dir
 
 
 def lock_path(lock, basedir=os.path.join(os.path.dirname(switch.__file__), "locks")):
@@ -42,8 +42,7 @@ def acquire_lock(lock, wait_time=0.3, retry_time=0.1):
                 if lock_time + wait_time <= time.time():
                     print("lock is expired")
                     break
-                else:
-                    print("acquiring file failed", lock_time, time.time())
+                print("acquiring file failed", lock_time, time.time())
 
             time.sleep(retry_time)
 
@@ -76,9 +75,7 @@ def release_lock(thread, temp, lock):
 
 @click.group()
 @click.pass_context
-@click.option(
-    "--lock", help="Enable lock that writes timestamp to file every 0.1 seconds."
-)
+@click.option("--lock", help="Enable lock that writes timestamp to file every 0.1 seconds.")
 def cli(ctx, lock):
 
     if lock:
@@ -86,9 +83,7 @@ def cli(ctx, lock):
         temp = acquire_lock(lock=lock)
 
         # Create and start the thread
-        thread = threading.Thread(
-            target=update_lock, kwargs={"temp": temp, "lock": lock}
-        )
+        thread = threading.Thread(target=update_lock, kwargs={"temp": temp, "lock": lock})
         thread.daemon = True
         thread.start()
 
