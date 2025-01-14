@@ -13,6 +13,6 @@ def exec(files, unique, copy):
             task_name="switch_file_exec",
             unique=unique,
             copy=copy,
-            wait_for_result=False,
+            wait_for_result=True,
             cleanup=False,
         )

@@ -25,7 +25,7 @@ def make_writer(f, name, url, outfolder, base_directory):
     )
 
 
-def make_temp_files(json_files, delete, **opts):
+def read_json_files(json_files, delete, **opts):
     for path in json_files:
         with open(path, "rb") as f:
             for spec in json.load(f):
@@ -45,14 +45,11 @@ def make_temp_files(json_files, delete, **opts):
     default=".",
 )
 def download(files, **opts):
-    for file in make_temp_files(files, **opts):
+    for file in read_json_files(files, **opts):
         grab_and_run(
             file,
-            lambda path, temp, task_id: ("/bin/sh", path),
             task_name="switch_file_download",
             basename="download.sh",
-            unique=False,
-            copy=False,
             wait_for_result=True,
             cleanup=False,
         )

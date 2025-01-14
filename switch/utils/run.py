@@ -8,7 +8,7 @@ import click
 from switch.utils.uuid import uuid7
 
 
-def _screen(path, temp, task_id):
+def screen_runner(path, temp, task_id):
     return [
         "/opt/homebrew/bin/screen",
         "-L",
@@ -20,6 +20,9 @@ def _screen(path, temp, task_id):
         "/bin/sh",
         path,
     ]
+
+def sh_runner(path, temp, task_id):
+    return ['/bin/sh', path]
 
 
 def file_to_temp_dir(source, task_name, unique=False, copy=False, basename=None):
@@ -69,7 +72,7 @@ def run(args, wait_for_result=False):
 
 def grab_and_run(
     file,
-    builder=_screen,
+    builder=sh_runner,
     task_name="switch_task_run",
     wait_for_result=False,
     cleanup=False,
