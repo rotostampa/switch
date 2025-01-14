@@ -9,7 +9,9 @@ from switch.utils.uuid import uuid7
 
 
 TEMPLATE = """
+echo "🚀 Download {url} to temp folder"
 curl -f -o ${{TMPDIR}}{operation_id}.temp "{url}" --compressed
+echo "📁 Moving file to {destination}"
 mv ${{TMPDIR}}{operation_id}.temp "{destination}"
 """
 
