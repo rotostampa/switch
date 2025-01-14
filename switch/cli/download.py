@@ -5,6 +5,8 @@ import json
 import os
 import uuid
 from switch.utils.run import grab_and_run
+from switch.utils.uuid import uuid7
+
 
 TEMPLATE = """
 curl -f -o ${{TMPDIR}}{operation_id}.temp "{url}" --compressed
@@ -13,7 +15,7 @@ mv ${{TMPDIR}}{operation_id}.temp "{destination}"
 
 def make_temp_file(name, url, outfolder, base_directory):
 
-    operation_id = uuid.uuid4()
+    operation_id = uuid7()
 
     content = TEMPLATE.format(
         operation_id = operation_id,
