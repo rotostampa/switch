@@ -1,12 +1,10 @@
-import tempfile
 
 import click
 import json
 import os
-import uuid
+from functools import partial
 from switch.utils.run import grab_and_run
 from switch.utils.uuid import uuid7
-from io import StringIO  
 
 
 
@@ -17,26 +15,22 @@ echo "📁 Moving file to {destination}"
 mv ${{TMPDIR}}{operation_id}.temp "{destination}"
 """
 
-def make_writer(name, url, outfolder, base_directory):
-
-    operation_id = uuid7()
-
-    content = TEMPLATE.format(
-        operation_id = operation_id,
-        name = name, 
-        url = url,
-        destination = os.path.abspath(os.path.join(base_directory, outfolder, name))
+def make_writer(f, name, url, outfolder, base_directory):
+    return f.write(
+        TEMPLATE.format(
+            operation_id = uuid7(),
+            name = name, 
+            url = url,
+            destination = os.path.abspath(os.path.join(base_directory, outfolder, name))
+        )
     )
-    destination = os.path.join(tempfile.gettempdir(), '{}.sh'.format(operation_id))
-
-    return lambda f: f.write(content)
 
 
 def make_temp_files(json_files, delete, **opts):
     for path in json_files:
         with open(path, 'rb') as f:
             for spec in json.load(f):
-                yield make_writer(**spec, **opts)
+                yield partial(make_writer, **spec, **opts)
 
         if delete:
             os.path.remove(path)
