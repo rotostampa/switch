@@ -50,6 +50,7 @@ def download(files, **opts):
     for file in make_temp_files(files, **opts):
         grab_and_run(
             file,
+            lambda path, temp, task_id: ("/bin/sh", path),
             task_name="switch_file_download",
             unique=False,
             copy=False,
