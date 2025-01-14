@@ -1,9 +1,5 @@
-import tempfile
 
 import click
-import json
-import os
-import uuid
 from switch.utils.run import grab_and_run
 
 @click.command(
