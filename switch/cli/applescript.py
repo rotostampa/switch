@@ -22,7 +22,6 @@ def echo(c):
 def run_applescript_on_files(template, context_function, files, output):
 
     for file in expand_files(*files):
-
         run(
             (
                 OSASCRIPT,
@@ -40,7 +39,6 @@ def run_applescript_on_files(template, context_function, files, output):
                     )
                 ),
             ),
-            wait_for_result=True,
         )
 
 

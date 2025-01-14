@@ -60,7 +60,7 @@ def file_to_temp_dir(source, task_name, unique=False, copy=False, basename=None)
     return (dest, temp_dir, task_id)
 
 
-def run(args, wait_for_result=False):
+def run(args, wait_for_result=True):
 
     click.echo("Running {}".format(args))
 
@@ -76,7 +76,7 @@ def grab_and_run(
     file,
     builder=sh_runner,
     task_name="switch_task_run",
-    wait_for_result=False,
+    wait_for_result=True,
     cleanup=False,
     **opts,
 ):

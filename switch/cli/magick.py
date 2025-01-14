@@ -34,6 +34,5 @@ def png_to_tiff(files, output, unique, copy):
             task_name="switch_png_to_tiff",
             unique=unique,
             copy=copy,
-            wait_for_result=True,
             cleanup=True,
         )
