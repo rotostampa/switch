@@ -6,6 +6,8 @@ import os
 import uuid
 from switch.utils.run import grab_and_run
 from switch.utils.uuid import uuid7
+from io import StringIO  
+
 
 
 TEMPLATE = """
@@ -15,7 +17,7 @@ echo "📁 Moving file to {destination}"
 mv ${{TMPDIR}}{operation_id}.temp "{destination}"
 """
 
-def make_temp_file(name, url, outfolder, base_directory):
+def make_writer(name, url, outfolder, base_directory):
 
     operation_id = uuid7()
 
@@ -27,17 +29,14 @@ def make_temp_file(name, url, outfolder, base_directory):
     )
     destination = os.path.join(tempfile.gettempdir(), '{}.sh'.format(operation_id))
 
-    with open(destination, 'w') as f:
-        f.write(content)
-
-    return destination
+    return lambda f: f.write(content)
 
 
 def make_temp_files(json_files, delete, **opts):
     for path in json_files:
         with open(path, 'rb') as f:
             for spec in json.load(f):
-                yield make_temp_file(**spec, **opts)
+                yield make_writer(**spec, **opts)
 
         if delete:
             os.path.remove(path)
@@ -54,6 +53,7 @@ def download(files, **opts):
             file,
             lambda path, temp, task_id: ("/bin/sh", path),
             task_name="switch_file_download",
+            basename='download.sh',
             unique=False,
             copy=False,
             wait_for_result=True,

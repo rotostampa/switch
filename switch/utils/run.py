@@ -22,7 +22,14 @@ def _screen(path, temp, task_id):
     ]
 
 
-def file_to_temp_dir(source, task_name, unique=False, copy=False):
+def file_to_temp_dir(source, task_name, unique=False, copy=False, basename = None):
+
+    if callable(source):
+        basename=basename or 'file.temp'
+    else:
+        basename=basename or os.path.basename(source)
+
+
     task_id = uuid7()
 
     # Create a temporary directory with the UUID name
@@ -33,13 +40,17 @@ def file_to_temp_dir(source, task_name, unique=False, copy=False):
     dest = os.path.join(
         temp_dir,
         unique
-        and "{uuid}-{basename}".format(uuid=uuid7(), basename=os.path.basename(source))
-        or os.path.basename(source),
+        and "{uuid}-{basename}".format(uuid=uuid7(), basename=basename)
+        or basename,
     )
 
     # Move the file to the new directory
 
-    if copy:
+    if callable(source):
+        with open(dest, 'w') as f:
+            source(f)
+
+    elif copy:
         shutil.copy(source, dest)
     else:
         shutil.move(source, dest)
