@@ -3,33 +3,19 @@ import os
 from functools import partial
 
 import click
-from switch.utils.run import grab_and_run
+from switch.utils.run import grab_and_run, run
 from switch.utils.uuid import uuid7
 
-TEMPLATE = """
-echo "🚀 Download {url} to temp folder"
-curl -f -o ${{TMPDIR}}{operation_id}.temp "{url}" --compressed
-echo "📁 Moving file to {destination}"
-mv ${{TMPDIR}}{operation_id}.temp "{destination}"
-"""
 
-
-def make_writer(f, name, url, outfolder, base_directory):
-    return f.write(
-        TEMPLATE.format(
-            operation_id=uuid7(),
-            name=name,
-            url=url,
-            destination=os.path.abspath(os.path.join(base_directory, outfolder, name)),
-        )
-    )
+def get_download_destination(name, url, outfolder, base_directory):
+    return url, os.path.abspath(os.path.join(base_directory, outfolder, name)),
 
 
 def read_json_files(json_files, delete, **opts):
     for path in json_files:
         with open(path, "rb") as f:
             for spec in json.load(f):
-                yield partial(make_writer, **spec, **opts)
+                yield get_download_destination(**spec, **opts)
 
         if delete:
             os.path.remove(path)
@@ -45,11 +31,8 @@ def read_json_files(json_files, delete, **opts):
     default=".",
 )
 def download(files, **opts):
-    for file in read_json_files(files, **opts):
-        grab_and_run(
-            file,
-            task_name="switch_file_download",
-            basename="download.sh",
+    for url, destination in read_json_files(files, **opts):
+        run(
+            ['/usr/bin/curl', '-f', '-o', destination, url, '--compressed'],
             wait_for_result=True,
-            cleanup=False,
         )
