@@ -5,25 +5,26 @@ import sys
 import tempfile
 
 import click
+from switch.utils.binaries import SCREEN, SH
 from switch.utils.uuid import uuid7
 
 
 def screen_runner(path, temp, task_id):
     return [
-        "/opt/homebrew/bin/screen",
+        SCREEN,
         "-L",
         "-Logfile",
         os.path.join(temp, "screen.log"),
         "-S",
         "cmd-{task_id}".format(task_id=task_id),
         "-dm",
-        "/bin/sh",
+        SH,
         path,
     ]
 
 
 def sh_runner(path, temp, task_id):
-    return ["/bin/sh", path]
+    return [SH, path]
 
 
 def file_to_temp_dir(source, task_name, unique=False, copy=False, basename=None):

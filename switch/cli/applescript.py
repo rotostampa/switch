@@ -3,6 +3,7 @@ from pathlib import Path
 
 import click
 from switch.utils.applescript import applescript_from_template, raw
+from switch.utils.binaries import OSASCRIPT
 from switch.utils.files import ensure_dir, expand_files
 from switch.utils.run import run
 
@@ -24,7 +25,7 @@ def run_applescript_on_files(template, context_function, files, output):
 
         run(
             (
-                "/usr/bin/osascript",
+                OSASCRIPT,
                 "-e",
                 echo(
                     applescript_from_template(

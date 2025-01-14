@@ -2,6 +2,7 @@ import http.client
 import urllib.parse
 
 import click
+from switch.utils.binaries import AWSCLI
 from switch.utils.files import expand_files
 from switch.utils.run import grab_and_run
 
@@ -17,15 +18,7 @@ def upload(files, unique, s3, notify, copy):
     processes = tuple(
         grab_and_run(
             file,
-            lambda path, temp, task_id: (
-                "/opt/homebrew/bin/aws",
-                "s3",
-                "cp",
-                path,
-                s3,
-                "--acl",
-                "public-read",
-            ),
+            lambda path, temp, task_id: (AWSCLI, "s3", "cp", path, s3, "--acl", "public-read"),
             task_name="switch_file_upload",
             unique=unique,
             copy=copy,

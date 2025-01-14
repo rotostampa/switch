@@ -1,6 +1,7 @@
 import os
 
 import click
+from switch.utils.binaries import MAGICK
 from switch.utils.files import expand_files
 from switch.utils.run import grab_and_run
 
@@ -17,7 +18,7 @@ def png_to_tiff(files, output, unique, copy):
         grab_and_run(
             file,
             lambda path, temp, task_id: (
-                "/opt/homebrew/bin/magick",
+                MAGICK,
                 path,
                 "-density",
                 "360",

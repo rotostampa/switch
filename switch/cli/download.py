@@ -2,6 +2,7 @@ import json
 import os
 
 import click
+from switch.utils.binaries import CURL
 from switch.utils.run import run
 
 
@@ -30,7 +31,4 @@ def read_json_files(json_files, delete, **opts):
 )
 def download(files, **opts):
     for url, destination in read_json_files(files, **opts):
-        run(
-            ["/usr/bin/curl", "-f", "-o", destination, url, "--compressed"],
-            wait_for_result=True,
-        )
+        run([CURL, "-f", "-o", destination, url, "--compressed"], wait_for_result=True)
