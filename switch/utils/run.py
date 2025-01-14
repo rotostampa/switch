@@ -5,7 +5,7 @@ import sys
 import tempfile
 
 import click
-from switch.utils.binaries import SCREEN, SH
+from switch.utils.binaries import SCREEN, SHELL
 from switch.utils.uuid import uuid7
 
 
@@ -18,13 +18,13 @@ def screen_runner(path, temp, task_id):
         "-S",
         "cmd-{task_id}".format(task_id=task_id),
         "-dm",
-        SH,
+        SHELL,
         path,
     ]
 
 
 def sh_runner(path, temp, task_id):
-    return [SH, path]
+    return [SHELL, path]
 
 
 def file_to_temp_dir(source, task_name, unique=False, copy=False, basename=None):

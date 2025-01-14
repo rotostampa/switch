@@ -1,4 +1,4 @@
-SH = "/bin/sh"
+SHELL = "/bin/zsh"
 CURL = "/usr/bin/curl"
 OSASCRIPT = "/usr/bin/osascript"
 AWSCLI = "/opt/homebrew/bin/aws"
