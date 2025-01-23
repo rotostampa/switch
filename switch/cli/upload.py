@@ -18,7 +18,7 @@ def upload(files, unique, s3, notify, copy):
     processes = tuple(
         grab_and_run(
             file,
-            lambda path, temp, task_id, s3 = s3: (AWSCLI, "s3", "cp", path, s3, "--acl", "public-read"),
+            lambda path, temp, task_id, s3 = s3: (AWSCLI, "s3", "cp", path, s3),
             task_name="switch_file_upload",
             unique=unique,
             copy=copy,
