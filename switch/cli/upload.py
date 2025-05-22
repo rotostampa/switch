@@ -7,18 +7,22 @@ from switch.utils.files import expand_files
 from switch.utils.run import grab_and_run
 
 
-@click.command(help="Upload files to s3 and signal sprint24 they are ready for collection")
+@click.command(
+    help="Upload files to s3 and signal sprint24 they are ready for collection"
+)
 @click.argument("files", nargs=-1, type=click.Path())
 @click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
 @click.option("--notify", is_flag=True, help="Send a notification")
 @click.option("--copy", is_flag=True, help="Copy the file instead of moving it")
-@click.option("--s3", default="s3://workflow-upload/", help="Add a unique prefix to the files")
+@click.option(
+    "--s3", default="s3://workflow-upload/", help="Add a unique prefix to the files"
+)
 def upload(files, unique, s3, notify, copy):
 
     processes = tuple(
         grab_and_run(
             file,
-            lambda path, temp, task_id, s3 = s3: (AWSCLI, "s3", "cp", path, s3),
+            lambda path, temp, task_id, s3=s3: (AWSCLI, "s3", "cp", path, s3),
             task_name="switch_file_upload",
             unique=unique,
             copy=copy,

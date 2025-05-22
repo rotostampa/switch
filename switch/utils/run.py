@@ -43,7 +43,9 @@ def file_to_temp_dir(source, task_name, unique=False, copy=False, basename=None)
     # Define the destination file path
     dest = os.path.join(
         temp_dir,
-        unique and "{uuid}-{basename}".format(uuid=uuid7(), basename=basename) or basename,
+        unique
+        and "{uuid}-{basename}".format(uuid=uuid7(), basename=basename)
+        or basename,
     )
 
     # Move the file to the new directory
@@ -65,7 +67,11 @@ def run(args, wait_for_result=True):
     click.echo("Running {}".format(args))
 
     p = subprocess.Popen(
-        args, stdin=subprocess.PIPE, stdout=sys.stdout, stderr=sys.stderr, env=os.environ
+        args,
+        stdin=subprocess.PIPE,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        env=os.environ,
     )
     if wait_for_result:
         p.wait()

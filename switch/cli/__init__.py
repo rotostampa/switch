@@ -75,7 +75,9 @@ def release_lock(thread, temp, lock):
 
 @click.group()
 @click.pass_context
-@click.option("--lock", help="Enable lock that writes timestamp to file every 0.1 seconds.")
+@click.option(
+    "--lock", help="Enable lock that writes timestamp to file every 0.1 seconds."
+)
 def cli(ctx, lock):
 
     if lock:
@@ -83,7 +85,9 @@ def cli(ctx, lock):
         temp = acquire_lock(lock=lock)
 
         # Create and start the thread
-        thread = threading.Thread(target=update_lock, kwargs={"temp": temp, "lock": lock})
+        thread = threading.Thread(
+            target=update_lock, kwargs={"temp": temp, "lock": lock}
+        )
         thread.daemon = True
         thread.start()
 

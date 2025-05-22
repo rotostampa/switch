@@ -17,7 +17,7 @@ def png_to_tiff(files, output, unique, copy):
     for file in expand_files(*files):
         grab_and_run(
             file,
-            lambda path, temp, task_id, output = output: (
+            lambda path, temp, task_id, output=output: (
                 MAGICK,
                 path,
                 "-density",
