@@ -1,17 +1,11 @@
 # switch
 
-install rye
+install uv
 
 ```
-brew install rye
+brew install uv
 ```
 
-Install requirments and create venv 
-
-```
-cd /Users/storage/Scripts/switch/
-rye sync
-```
 
 ## startup on macos
 
@@ -26,11 +20,7 @@ create the following file under ~/Library/LaunchAgents/org.rotostampa.ftpserver.
   <string>ftpserver</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/opt/homebrew/bin/rye</string>
-    <string>run</string>
-    <string>--pyproject</string>
-    <string>/Users/storage/Scripts/switch/pyproject.toml</string>
-    <string>switch</string>
+    <string>/Users/storage/Scripts/switch/run.sh</string>
     <string>ftpserver</string>
     <string>file://storage:password@localhost/Volumes/Storage/Switch</string>
     <string>file://file:password@localhost/Volumes/NasMaster/DbStorage</string>
@@ -58,9 +48,9 @@ create the following file under ~/Library/LaunchAgents/org.rotostampa.ftpserver.
 
 ## run from cli
 
-```rye run python3 cli.py ...```
+```run.sh ...```
 
 
 ## format the code
 
-```rye run black .```
+```uv run --with black black .```
