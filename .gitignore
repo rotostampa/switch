@@ -10,3 +10,4 @@ dist/.DS_Store
 .DS_Store
 /switch.egg-info
 /dist
+/build
