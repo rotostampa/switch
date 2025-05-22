@@ -1,8 +1,4 @@
 #!/bin/bash
 
-# export PYTHONPYCACHEPREFIX="${TMPDIR:-/tmp/}rotostampa-pycache"
-
-cd $(dirname "${BASH_SOURCE[0]}")
-
-uv pip install .
-.venv/bin/python -m switch "$@"
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+uv run --with "file://${SCRIPT_DIR}" --module switch "$@"
