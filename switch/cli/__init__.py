@@ -95,7 +95,6 @@ def cli(ctx, lock):
 
 
 for module, cmd in (
-    ("switch.cli.ftpserver", "ftpserver"),
     ("switch.cli.applescript", "pdf_to_ps"),
     ("switch.cli.applescript", "distill"),
     ("switch.cli.upload", "upload"),
