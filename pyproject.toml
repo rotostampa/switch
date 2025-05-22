@@ -1,25 +1,14 @@
 [project]
 name = "switch"
-version = "0.1.0"
+version = "0.1.1"
 description = "Add your description here"
 authors = [
     { name = "riccardodivirgilio", email = "riccardodivirgilio@gmail.com" }
 ]
-dependencies = [
-    "click==8.1.7",
-]
+dependencies = ["click==8.2.1"]
 readme = "README.md"
 requires-python = ">= 3.12"
 
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
-
-[tool.rye]
-managed = true
-dev-dependencies = [
-    "black>=24.4.2",
-]
-
-[tool.rye.scripts]
-switch = "python3 -m switch"
