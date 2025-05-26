@@ -1,7 +1,7 @@
 import http.client
 import urllib.parse
 
-import click
+import click, os
 from switch.utils.binaries import AWSCLI
 from switch.utils.files import expand_files
 from switch.utils.run import grab_and_run
