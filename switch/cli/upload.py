@@ -42,12 +42,10 @@ def upload(files, unique, s3, notify, copy):
         conn.request(
             "POST",
             "/api/storage/switch-notify-file/",
-            body=urllib.parse.urlencode(
-                {"token": os.getenv('SWITCH_API_KEY')}
-            ).encode("utf-8"),
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            headers={
+                "Authorization": f"Bearer {os.getenv('SWITCH_API_KEY')}"
+            },
         )
-
         resp = conn.getresponse()
 
         click.echo(resp.read(), err=True)
