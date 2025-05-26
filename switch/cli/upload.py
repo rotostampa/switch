@@ -43,7 +43,7 @@ def upload(files, unique, s3, notify, copy):
             "POST",
             "/api/storage/switch-notify-file/",
             body=urllib.parse.urlencode(
-                {"token": "5f5d24c0-a0c0-4f6c-b2b4-2414fac5eaa5"}
+                {"token": os.getenv('SWITCH_API_KEY')}
             ).encode("utf-8"),
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
