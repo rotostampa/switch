@@ -6,8 +6,21 @@ from switch.utils.binaries import CURL
 from switch.utils.run import run
 
 
-def get_download_destination(name, url, outfolder, base_directory):
-    return url, os.path.abspath(os.path.join(base_directory, outfolder, name))
+def get_download_destination(name, outfolder, base_directory, url = None, mirrors = None):
+    destination = os.path.abspath(os.path.join(base_directory, outfolder, name))
+
+    if not os.path.exists(os.path.dirname(destination)):
+        raise Exception(f"Directory {os.path.dirname(destination)} does not exist")
+
+    urls = []
+
+    if url:
+        urls.append(url)
+
+    if mirrors:
+        urls.extend(mirrors)
+
+    return urls, destination
 
 
 def read_json_files(json_files, delete, **opts):
@@ -30,5 +43,16 @@ def read_json_files(json_files, delete, **opts):
     default=".",
 )
 def download(files, **opts):
-    for url, destination in read_json_files(files, **opts):
-        run((CURL, "-f", "-o", destination, url, "--compressed"))
+    for mirrors, destination in read_json_files(files, **opts):
+        success = False
+        for url in mirrors:
+            process = run((CURL, "-f", "-o", destination, url, "--compressed"), wait_for_result=True)
+            if process.returncode == 0:
+                click.echo(f"Succesfully downloaded from {url}")
+                success = True
+                break
+            else:
+                click.echo(f"Failed to download from {url}: curl returned {process.returncode}")
+
+        if not success:
+            click.echo(f"Failed to download to {destination} from all mirrors")
