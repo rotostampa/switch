@@ -27,7 +27,7 @@ def sh_runner(path, temp, task_id):
     return [SHELL, path]
 
 
-def file_to_temp_dir(source, task_name, unique=False, copy=False, basename=None):
+def file_to_temp_dir(source, task_name, unique=False, copy=False, basename=None, output=None):
 
     if callable(source):
         basename = basename or "file.temp"
@@ -38,11 +38,14 @@ def file_to_temp_dir(source, task_name, unique=False, copy=False, basename=None)
 
     # Create a temporary directory with the UUID name
     temp_dir = os.path.join(tempfile.gettempdir(), task_name, str(task_id))
-    os.makedirs(temp_dir)
+    in_dir = os.path.join(temp_dir, "in")
+    out_dir = output or os.path.join(temp_dir, "out")
+    os.makedirs(in_dir)
+    os.makedirs(out_dir, exist_ok=True)
 
     # Define the destination file path
     dest = os.path.join(
-        temp_dir,
+        in_dir,
         unique
         and "{uuid}-{basename}".format(uuid=uuid7(), basename=basename)
         or basename,
@@ -59,7 +62,7 @@ def file_to_temp_dir(source, task_name, unique=False, copy=False, basename=None)
     else:
         shutil.move(source, dest)
 
-    return (dest, temp_dir, task_id)
+    return (dest, out_dir, task_id, temp_dir)
 
 
 def run(args, wait_for_result=True):
@@ -84,15 +87,16 @@ def grab_and_run(
     task_name="switch_task_run",
     wait_for_result=True,
     cleanup=False,
+    output=None,
     **opts,
 ):
-    path, temp, task_id = file_to_temp_dir(file, task_name, **opts)
+    path, temp, task_id, temp_dir = file_to_temp_dir(file, task_name, output=output, **opts)
 
     click.echo("Running {path}".format(path=path))
 
     p = run(builder(path, temp, task_id), wait_for_result=wait_for_result)
 
     if cleanup:
-        shutil.rmtree(temp)
+        shutil.rmtree(temp_dir)
 
     return p

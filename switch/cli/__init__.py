@@ -102,6 +102,7 @@ for module, cmd in (
     ("switch.cli.exec", "exec"),
     ("switch.cli.noop", "wait"),
     ("switch.cli.magick", "png_to_tiff"),
+    ("switch.cli.optimize", "optimize"),
 ):
 
     cli.add_command(getattr(import_module(module), cmd))

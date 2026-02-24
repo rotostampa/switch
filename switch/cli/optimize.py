@@ -1,39 +1,41 @@
 import os
 
 import click
-from switch.utils.binaries import MAGICK
+from switch.utils.binaries import QPDF
 from switch.utils.files import expand_files
 from switch.utils.run import grab_and_run
 
 
-@click.command(help="Convert pdf to postscript using applescript")
+@click.command(help="Optimize PDF files using qpdf")
 @click.argument("files", nargs=-1, type=click.Path())
 @click.option(
     "--output", help="Directory where the file should go, defaults to temp directory"
 )
 @click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
 @click.option("--copy", is_flag=True, help="Copy the file instead of moving it")
-def png_to_tiff(files, output, unique, copy):
+def optimize(files, output, unique, copy):
     for file in expand_files(*files):
         grab_and_run(
             file,
             lambda path, temp, task_id: (
-                MAGICK,
+                QPDF,
                 path,
-                "-density",
-                "360",
-                "-units",
-                "PixelsPerInch",
-                "-compress",
-                "lzw",
+                "--linearize",
+                "--compress-streams=y",
+                "--recompress-flate",
+                "--compression-level=9",
+                "--normalize-content=y",
+                "--optimize-images",
+                "--remove-unreferenced-resources=yes",
+                "--object-streams=generate",
+                "--min-version=1.5",
                 os.path.join(
                     temp,
-                    "{}.tiff".format(os.path.splitext(os.path.basename(path))[0]),
+                    os.path.basename(path),
                 ),
             ),
-            task_name="switch_png_to_tiff",
+            task_name="switch_optimize",
             output=output,
             unique=unique,
             copy=copy,
-            cleanup=True,
         )
