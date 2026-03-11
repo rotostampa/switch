@@ -55,6 +55,7 @@ def plating(files, output, unique, copy, pages, open_out):
                 "-dNOPAUSE",
                 "-dSAFER",
                 "-sDEVICE=tiffsep1",
+                "-sCompression=g4",
                 "-r2400",
                 "-sOutputFile=" + os.path.join(out_dir, "{}.tif".format(stem)),
                 page_pdf,
