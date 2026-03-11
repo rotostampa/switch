@@ -9,6 +9,10 @@ from switch.utils.binaries import SCREEN, SHELL
 from switch.utils.uuid import uuid7
 
 
+def open_folder(path):
+    run(("open", path), wait_for_result=True)
+
+
 def screen_runner(path, temp, task_id):
     return [
         SCREEN,
@@ -88,6 +92,7 @@ def grab_and_run(
     wait_for_result=True,
     cleanup=False,
     output=None,
+    open_out=False,
     **opts,
 ):
     path, temp, task_id, temp_dir = file_to_temp_dir(file, task_name, output=output, **opts)
@@ -99,4 +104,7 @@ def grab_and_run(
     if cleanup:
         shutil.rmtree(temp_dir)
 
-    return p
+    if open_out:
+        open_folder(temp)
+
+    return p, temp

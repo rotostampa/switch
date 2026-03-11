@@ -5,7 +5,7 @@ import click
 from switch.utils.applescript import applescript_from_template, raw
 from switch.utils.binaries import OSASCRIPT
 from switch.utils.files import ensure_dir, expand_files
-from switch.utils.run import run
+from switch.utils.run import run, open_folder
 
 
 def _ensure_empty(path):
@@ -104,8 +104,9 @@ end tell
     "--output", help="Directory where the file should go, defaults to temp directory"
 )
 @click.option("--eps", is_flag=True, help="Export as eps")
-def pdf_to_ps(files, output, eps):
-    return run_applescript_on_files(
+@click.option("--open", "open_out", is_flag=True, help="Open the output folder when done")
+def pdf_to_ps(files, output, eps, open_out):
+    run_applescript_on_files(
         context_function=lambda path, output, stem, **opts: {
             "pdf": path,
             "target": _ensure_empty(
@@ -117,6 +118,8 @@ def pdf_to_ps(files, output, eps):
         files=files,
         output=output,
     )
+    if open_out:
+        open_folder(os.path.realpath(output or os.path.dirname(files[0])))
 
 
 DISTILL = """
@@ -142,8 +145,9 @@ end tell
 @click.option(
     "--output", help="Directory where the file should go, defaults to temp directory"
 )
-def distill(files, output):
-    return run_applescript_on_files(
+@click.option("--open", "open_out", is_flag=True, help="Open the output folder when done")
+def distill(files, output, open_out):
+    run_applescript_on_files(
         context_function=lambda path, output, stem, **opts: {
             "postscript": path,
             "folder": output,
@@ -152,3 +156,5 @@ def distill(files, output):
         files=files,
         output=output,
     )
+    if open_out:
+        open_folder(os.path.realpath(output or os.path.dirname(files[0])))

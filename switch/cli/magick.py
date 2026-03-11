@@ -13,7 +13,8 @@ from switch.utils.run import grab_and_run
 )
 @click.option("--unique", is_flag=True, help="Add a unique prefix to the files")
 @click.option("--copy", is_flag=True, help="Copy the file instead of moving it")
-def png_to_tiff(files, output, unique, copy):
+@click.option("--open", "open_out", is_flag=True, help="Open the output folder when done")
+def png_to_tiff(files, output, unique, copy, open_out):
     for file in expand_files(*files):
         grab_and_run(
             file,
@@ -36,4 +37,5 @@ def png_to_tiff(files, output, unique, copy):
             unique=unique,
             copy=copy,
             cleanup=True,
+            open_out=open_out,
         )
