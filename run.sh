@@ -1,6 +1,12 @@
 #!/bin/bash
 
-cd $(dirname "${BASH_SOURCE[0]}")
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-uv pip install .
-.venv/bin/python -m switch "$@"
+export PYTHONPATH="$SCRIPT_DIR"
+
+uv run                                            \
+    --directory "$SCRIPT_DIR"                      \
+    --exact --no-env-file                         \
+    --no-config                                   \
+    --python-preference only-managed              \
+    --module switch "$@"
