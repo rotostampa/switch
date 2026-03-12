@@ -77,8 +77,8 @@ def plating(files, output, unique, copy, pages, lpi, angle_c, angle_m, angle_y, 
                 "-sDEVICE=tiffsep1",
                 "-sCompression=g4",
                 "-r{}".format(dpi),
-                "-c", halftone,
                 "-sOutputFile=" + os.path.join(out_dir, "{}.tif".format(stem)),
+                "-c", halftone,
                 "-f", page_pdf,
             ), wait_for_result=False)
             processes.append(p)
